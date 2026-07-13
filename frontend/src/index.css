@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-soil-50 text-soil-700 font-body;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Constrain the whole app to a mobile-width column, centered, since this is mobile-only UI */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+input:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #5C8A3D;
+  outline-offset: 2px;
+}

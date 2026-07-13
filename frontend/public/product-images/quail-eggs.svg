@@ -1,0 +1,30 @@
+<svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbf7ea"/>
+      <stop offset="100%" stop-color="#b9a576"/>
+    </linearGradient>
+    <linearGradient id="egg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0dfba"/>
+      <stop offset="100%" stop-color="#b3915d"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="450" fill="url(#bg)"/>
+  <ellipse cx="300" cy="250" rx="210" ry="112" fill="#d9c18b"/>
+  <g fill="url(#egg)">
+    <ellipse cx="183" cy="213" rx="41" ry="55" transform="rotate(-18 183 213)"/>
+    <ellipse cx="260" cy="201" rx="43" ry="57" transform="rotate(12 260 201)"/>
+    <ellipse cx="338" cy="207" rx="42" ry="56" transform="rotate(-8 338 207)"/>
+    <ellipse cx="416" cy="224" rx="41" ry="55" transform="rotate(20 416 224)"/>
+    <ellipse cx="220" cy="293" rx="43" ry="57" transform="rotate(9 220 293)"/>
+    <ellipse cx="305" cy="294" rx="44" ry="58" transform="rotate(-16 305 294)"/>
+    <ellipse cx="391" cy="293" rx="42" ry="56" transform="rotate(11 391 293)"/>
+  </g>
+  <g fill="#6b4b2c" opacity=".75">
+    <circle cx="171" cy="192" r="9"/><circle cx="199" cy="228" r="12"/><circle cx="251" cy="181" r="10"/>
+    <circle cx="279" cy="216" r="13"/><circle cx="327" cy="195" r="11"/><circle cx="353" cy="231" r="9"/>
+    <circle cx="405" cy="206" r="10"/><circle cx="432" cy="241" r="13"/><circle cx="204" cy="279" r="11"/>
+    <circle cx="238" cy="313" r="9"/><circle cx="292" cy="276" r="12"/><circle cx="326" cy="315" r="10"/>
+    <circle cx="381" cy="276" r="10"/><circle cx="404" cy="310" r="12"/>
+  </g>
+</svg>
