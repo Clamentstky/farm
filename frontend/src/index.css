@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 html, body, #root {
+  min-height: 100%;
   height: 100%;
 }
 
 body {
+  margin: 0;
   @apply bg-soil-50 text-soil-700 font-body;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Constrain the whole app to a mobile-width column, centered, since this is mobile-only UI */
 .app-shell {
-  max-width: 480px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   position: relative;
 }
@@ -22,6 +22,65 @@ body {
 input:focus-visible,
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid #5C8A3D;
+  outline: 2px solid #118707;
   outline-offset: 2px;
+}
+
+input,
+textarea,
+select {
+  color: #090f08 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #090f08 !important;
+  opacity: 1;
+}
+
+/* Brand theme lock: keep every project accent on the requested green. */
+.bg-leaf-400,
+.bg-leaf-500,
+.bg-leaf-600,
+.bg-leaf-700,
+.hover\:bg-leaf-600:hover,
+.hover\:bg-leaf-700:hover,
+.active\:bg-leaf-700:active {
+  background-color: #118707 !important;
+}
+
+.bg-leaf-500\/10,
+.bg-leaf-600\/10 {
+  background-color: rgba(17, 135, 7, 0.1) !important;
+}
+
+.text-leaf-400,
+.text-leaf-500,
+.text-leaf-600,
+.text-leaf-700,
+.text-soil-400,
+.text-soil-600,
+.text-soil-700,
+.hover\:text-leaf-700:hover {
+  color: #090f08 !important;
+}
+
+.border-leaf-400,
+.border-leaf-500,
+.border-leaf-600,
+.border-leaf-700,
+.hover\:border-leaf-400:hover,
+.focus\:border-leaf-500:focus,
+.focus-within\:border-leaf-500:focus-within {
+  border-color: #118707 !important;
+}
+
+.border-leaf-500\/30 {
+  border-color: rgba(17, 135, 7, 0.3) !important;
+}
+
+.ring-leaf-500,
+.focus\:ring-leaf-500:focus,
+.focus-within\:ring-leaf-500:focus-within {
+  --tw-ring-color: #118707 !important;
 }

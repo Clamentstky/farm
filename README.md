@@ -1,8 +1,8 @@
-# GraminFresh - Customer Authentication Module
+# Village Fresh Farm Delivery Platform
 
-Village-based fresh farm products delivery platform.
+React JS, FastAPI, and MySQL platform for village-based fresh farm product delivery.
 
-Day 1 milestone focuses on customer authentication, customer dashboard navigation, profile display, mobile OTP login, and mobile-first UI.
+This Day 2 milestone completes the customer shopping home page, category navigation, product listing page, search, backend catalog APIs, MySQL schema, and responsive UI.
 
 ## Tech Stack
 
@@ -11,49 +11,36 @@ Day 1 milestone focuses on customer authentication, customer dashboard navigatio
 - Backend: Python FastAPI
 - Database: MySQL
 - ORM: SQLAlchemy
+- API Client: Axios
 - Authentication: JWT Bearer token
-- Password security: bcrypt hashing through Passlib
 
-## Features Completed
+## Completed Features
 
-- Customer registration
-- Auto-generated customer IDs like `CUS001`, `CUS002`
-- Unique mobile number validation
-- Password login
-- Mobile number + OTP login
-- Development OTP displayed on screen for local testing
-- Forgot password with OTP reset flow
-- JWT authentication
-- Protected customer dashboard route
-- Customer profile API
-- Customer dashboard after login
-- Mobile home screen with delivery location
-- GPS location capture button
-- Product search box
-- Product image cards for farm products
-- Profile tab on dashboard
-- Logout
-- Mobile-only responsive layout
-- GraminFresh app icon and favicon
+- Customer home page with header, navigation bar, search bar, hero banner, category cards, featured products, popular products, and footer
+- Category module with image cards, category name, and product count
+- Category navigation to `/category/:id`
+- Product listing page by category
+- Product cards with image, name, description, price, unit, stock, Add to Cart, and View Details
+- Search by product name and category name
+- Loading states and error states
+- Reusable React components
+- FastAPI catalog endpoints
+- MySQL tables for `categories` and `products`
+- Seed data for required farm categories and products
+- Existing customer auth, OTP login, protected routes, profile validation, and logout remain available
 
-## Product Categories
+## Required Categories
 
-The dashboard currently displays:
-
-- Cow Milk
-- Goat Milk
+- Milk & Dairy
+- Goat Farm
+- Chicken Farm
+- Eggs
 - Fresh Water Fish
 - Sea Fish
 - Fresh Water Prawn
 - Sea Prawn
-- Country Chicken
-- Broiler Chicken
-- Country Eggs
-- White Eggs
-- Quail Eggs
-- Duck Eggs
-- Goat Meat
-- Other Farm Products
+- Crab
+- Meat
 
 ## Folder Structure
 
@@ -61,30 +48,27 @@ The dashboard currently displays:
 Task1/
 |-- backend/
 |   |-- app/
-|   |   |-- core/          # Config, JWT, password hashing, dependencies, utilities
+|   |   |-- core/          # Config, JWT, password hashing, dependencies
 |   |   |-- db/            # SQLAlchemy database session
-|   |   |-- models/        # Customer and OTP models
-|   |   |-- routers/       # Auth API routes
-|   |   |-- schemas/       # Pydantic request/response schemas
+|   |   |-- models/        # Customer, OTP, Category, Product models
+|   |   |-- routers/       # Auth and catalog API routes
+|   |   |-- schemas/       # Pydantic schemas
 |   |   |-- main.py        # FastAPI app entry point
-|   |-- schema.sql         # MySQL database/table setup
+|   |-- schema.sql         # MySQL database, tables, and seed data
 |   |-- requirements.txt
-|   |-- .env.example
 |
 |-- frontend/
 |   |-- public/
 |   |   |-- favicon.svg
-|   |   |-- product-images/ # Local product images
+|   |   |-- product-images/
 |   |-- src/
-|   |   |-- api/            # Axios client and auth API calls
+|   |   |-- api/            # Axios client, auth API, catalog API
 |   |   |-- components/     # Shared UI components
-|   |   |-- context/        # Auth context and session state
-|   |   |-- pages/          # Login, Register, ForgotPassword, Dashboard
+|   |   |-- context/        # Auth context
+|   |   |-- pages/          # Auth, home, category listing, not found
 |   |   |-- routes/         # ProtectedRoute
 |   |   |-- App.jsx
 |   |   |-- main.jsx
-|   |-- .env.example
-|   |-- vite.config.js
 ```
 
 ## Backend Setup
@@ -96,15 +80,7 @@ python -m venv ../.venv
 pip install -r requirements.txt
 ```
 
-Create backend environment file:
-
-```bash
-copy .env.example .env
-```
-
-Update `backend/.env` with your MySQL and JWT settings.
-
-Example:
+Create `backend/.env`:
 
 ```env
 DATABASE_URL=mysql+pymysql://root:password@localhost:3306/farm
@@ -114,7 +90,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=1440
 CORS_ORIGINS=http://localhost:5173
 ```
 
-Create MySQL database and tables:
+Create database, tables, and seed catalog data:
 
 ```bash
 mysql -u root -p < schema.sql
@@ -124,12 +100,6 @@ Run backend:
 
 ```bash
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-Backend health check:
-
-```text
-http://127.0.0.1:8000/
 ```
 
 API docs:
@@ -143,10 +113,9 @@ http://127.0.0.1:8000/docs
 ```bash
 cd frontend
 npm install
-copy .env.example .env
 ```
 
-Example `frontend/.env`:
+Create `frontend/.env`:
 
 ```env
 VITE_API_BASE_URL=http://127.0.0.1:8000
@@ -177,12 +146,18 @@ npm run build
 | `/login` | Public | Password login and OTP login |
 | `/register` | Public | Customer registration |
 | `/forgot-password` | Public | OTP password reset |
-| `/customer/dashboard` | Protected | Customer home, products, profile, location |
+| `/customer/dashboard` | Protected | Customer shopping home page |
+| `/category/:id` | Protected | Category-wise product listing |
 
 ## Backend API Endpoints
 
 | Method | Endpoint | Description | Auth |
 | --- | --- | --- | --- |
+| `GET` | `/api/categories` | Get active categories with product counts | No |
+| `GET` | `/api/products` | Get products, optional `?search=` by product/category | No |
+| `GET` | `/api/categories/{category_id}/products` | Get products by category | No |
+| `GET` | `/api/products/featured` | Get featured products | No |
+| `GET` | `/api/products/popular` | Get popular products | No |
 | `POST` | `/api/auth/register` | Register customer and return JWT | No |
 | `POST` | `/api/auth/login/password` | Login using mobile number and password | No |
 | `POST` | `/api/auth/otp/request` | Generate OTP for mobile login | No |
@@ -194,124 +169,47 @@ npm run build
 
 ## Database Tables
 
-### `customers`
+### `categories`
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | INT | Primary key |
-| `customer_id` | VARCHAR(20) | Unique ID like `CUS001` |
-| `full_name` | VARCHAR(150) | Required |
-| `mobile_number` | VARCHAR(15) | Required and unique |
-| `email` | VARCHAR(150) | Unique |
-| `village` | VARCHAR(150) | Customer village/location |
-| `password` | VARCHAR(255) | Hashed password |
-| `created_at` | DATETIME | Created timestamp |
+| `category_name` | VARCHAR(120) | Unique category name |
+| `category_image` | VARCHAR(500) | Image URL/path |
+| `status` | BOOLEAN | Active/inactive |
 
-### `otps`
+### `products`
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | INT | Primary key |
-| `mobile_number` | VARCHAR(15) | Mobile number for OTP |
-| `otp_code` | VARCHAR(6) | Generated OTP |
-| `is_used` | BOOLEAN | Single-use OTP flag |
-| `expires_at` | DATETIME | OTP expiry time |
-| `created_at` | DATETIME | Created timestamp |
+| `category_id` | INT | Foreign key to categories |
+| `product_name` | VARCHAR(160) | Product name |
+| `description` | TEXT | Short description |
+| `product_image` | VARCHAR(500) | Image URL/path |
+| `price` | DECIMAL(10,2) | Product price |
+| `stock` | INT | Available stock |
+| `unit` | VARCHAR(30) | Kg, Litre, or Piece |
+| `is_featured` | BOOLEAN | Featured products flag |
+| `status` | BOOLEAN | Active/inactive |
 
-## Authentication Flow
+Existing auth tables:
 
-1. Customer registers with full name, mobile number, email, village, password, and confirm password.
-2. Backend validates input and checks unique mobile number/email.
-3. Backend generates a customer ID such as `CUS001`.
-4. Password is hashed before saving.
-5. Backend returns JWT and customer profile.
-6. Frontend stores JWT in `localStorage`.
-7. Protected routes use the JWT as `Authorization: Bearer <token>`.
-8. Login can happen through password or OTP.
-9. OTPs expire after 5 minutes and can be used only once.
-10. Logout clears local session data.
+- `customers`
+- `otps`
 
-## OTP Development Note
+## Milestone Status
 
-OTP is currently for local development.
-
-The backend returns `dev_otp` in the OTP API response, and the frontend displays it on screen.
-
-This is useful for testing without an SMS gateway. Before production:
-
-- Remove `dev_otp` from public API responses.
-- Integrate SMS delivery with MSG91, Twilio, or another SMS provider.
-- Keep OTP server-side only.
-
-## Mobile Dashboard
-
-The protected dashboard includes:
-
-- GraminFresh brand icon
-- Welcome header
-- Customer ID card
-- Delivery location section
-- GPS location capture
-- Search box
-- Product image grid
-- Product filtering by name/category
-- Profile tab
-- Logout button
-
-The UI is constrained to a mobile width with a max width of `480px`.
-
-## Important Files
-
-| File | Purpose |
-| --- | --- |
-| `backend/app/routers/auth.py` | Auth API logic |
-| `backend/app/schemas/customer.py` | Request/response validation |
-| `backend/app/models/customer.py` | Customer table model |
-| `backend/app/models/otp.py` | OTP table model |
-| `backend/app/core/security.py` | JWT and password helpers |
-| `frontend/src/context/AuthContext.jsx` | Frontend auth/session state |
-| `frontend/src/api/auth.js` | Auth API functions |
-| `frontend/src/pages/Login.jsx` | Password and OTP login screen |
-| `frontend/src/pages/Register.jsx` | Registration screen |
-| `frontend/src/pages/Dashboard.jsx` | Customer dashboard, products, search, profile |
-| `frontend/src/components/BrandIcon.jsx` | GraminFresh icon |
-
-## Validation and Error Handling
-
-- Mobile number must be a valid 10-digit Indian mobile number.
-- Password must be at least 6 characters.
-- Confirm password must match.
-- Mobile number must be unique.
-- Email must be unique.
-- FastAPI validation errors are formatted consistently.
-- Axios interceptor attaches JWT to requests.
-- Axios interceptor clears local session on `401`.
-
-## Milestone 1 Status
-
-- [x] Customer Registration
-- [x] Customer Login
-- [x] OTP Login
-- [x] Forgot Password
-- [x] Customer Dashboard Navigation
+- [x] Customer Home Page
+- [x] Category Module
+- [x] Product Listing Page
+- [x] Search Functionality
 - [x] Backend APIs
-- [x] MySQL Database Setup
-- [x] JWT Authentication
-- [x] Protected Routes
-- [x] Mobile Responsive UI
-- [x] Customer Profile
-- [x] Home Location Section
-- [x] Product Search
-- [x] Product Image Cards
-- [x] GraminFresh Icon
+- [x] MySQL Database Integration
+- [x] Responsive Design
 
-## Next Suggested Milestones
+## Notes
 
-- Product database table
-- Product listing API
-- Cart module
-- Order placement
-- Delivery address management
-- Admin product management
-- SMS gateway integration
-- Payment integration
+- `schema.sql` seeds the ten required categories and sample products.
+- Add to Cart currently stores items in page state for the first milestone. A persistent cart table/API can be added in the next milestone.
+- Popular products are returned from active products ordered by available stock because the requested `products` table does not include an `is_popular` column.

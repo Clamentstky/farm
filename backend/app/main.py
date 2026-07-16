@@ -5,10 +5,10 @@ from fastapi.exceptions import RequestValidationError
 
 from app.core.config import settings
 from app.db.session import Base, engine
-from app.routers import auth
+from app.routers import auth, catalog
 import app.models  # noqa: F401 ensures models are registered before create_all
 
-app = FastAPI(title="Customer Authentication API", version="1.0.0")
+app = FastAPI(title="Village Fresh Farm Delivery API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,8 +39,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 app.include_router(auth.router)
+app.include_router(catalog.router)
 
 
 @app.get("/")
 def health_check():
-    return {"status": "ok", "service": "Customer Authentication API"}
+    return {"status": "ok", "service": "Village Fresh Farm Delivery API"}

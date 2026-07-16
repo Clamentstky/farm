@@ -1,3 +1,5 @@
+import { BRAND_NAME, BRAND_TAGLINE } from '../data/brand'
+
 export default function BrandIcon({ className = 'h-10 w-10', showText = false }) {
   return (
     <div className={`inline-flex items-center gap-3 ${showText ? '' : 'justify-center'}`}>
@@ -15,7 +17,7 @@ export default function BrandIcon({ className = 'h-10 w-10', showText = false })
           />
           <path
             d="M16.4 31.6c5.1-8.2 10.7-13 16.8-14.5"
-            stroke="#174A2A"
+            stroke="#118707"
             strokeWidth="3"
             strokeLinecap="round"
           />
@@ -27,7 +29,16 @@ export default function BrandIcon({ className = 'h-10 w-10', showText = false })
           />
         </svg>
       </div>
-      {showText && <span className="text-xl font-bold text-leaf-700">GraminFresh</span>}
+      {showText && (
+        <span className="leading-tight">
+          <span className="block text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">
+            {BRAND_NAME}
+          </span>
+          <span className="block font-display text-xl font-semibold text-soil-700">
+            {BRAND_TAGLINE}
+          </span>
+        </span>
+      )}
     </div>
   )
 }

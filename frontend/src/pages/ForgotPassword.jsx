@@ -5,6 +5,7 @@ import PrimaryButton from '../components/PrimaryButton'
 import AlertBanner from '../components/AlertBanner'
 import { forgotPassword, resetPassword } from '../api/auth'
 import { extractErrorMessage } from '../api/client'
+import AuthLayout from '../components/AuthLayout'
 
 export default function ForgotPassword() {
   const [step, setStep] = useState('request') // 'request' | 'reset'
@@ -73,17 +74,11 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="app-shell bg-soil-50 px-6 py-10">
-      <div className="mb-8">
-        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-leaf-600">Account recovery</p>
-        <h1 className="font-display text-3xl font-semibold text-soil-700">Reset your password</h1>
-        <p className="mt-2 text-sm text-soil-600">
-          {step === 'request'
-            ? "We'll send a one-time code to your registered mobile number."
-            : 'Enter the code and choose a new password.'}
-        </p>
-      </div>
-
+    <AuthLayout
+      eyebrow="Account recovery"
+      title="Reset your password"
+      description="Use your registered mobile number to receive a secure code and choose a new password."
+    >
       <AlertBanner message={formError} type="error" />
       <AlertBanner message={successMessage} type="success" />
 
@@ -151,6 +146,6 @@ export default function ForgotPassword() {
           Log in
         </Link>
       </p>
-    </div>
+    </AuthLayout>
   )
 }

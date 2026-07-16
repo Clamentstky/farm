@@ -6,6 +6,7 @@ import AlertBanner from '../components/AlertBanner'
 import { registerCustomer } from '../api/auth'
 import { extractErrorMessage } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import AuthLayout from '../components/AuthLayout'
 
 const initialForm = {
   full_name: '',
@@ -60,15 +61,11 @@ export default function Register() {
   }
 
   return (
-    <div className="app-shell bg-soil-50 px-6 py-10">
-      <div className="mb-8">
-        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-leaf-600">Create account</p>
-        <h1 className="font-display text-3xl font-semibold text-soil-700">Join the customer portal</h1>
-        <p className="mt-2 text-sm text-soil-600">
-          Register with your mobile number to get a unique Customer ID.
-        </p>
-      </div>
-
+    <AuthLayout
+      eyebrow="Create account"
+      title="Join the customer portal"
+      description="Register with your mobile number to get a unique Customer ID and unlock fresh daily deliveries."
+    >
       <AlertBanner message={formError} />
 
       <form onSubmit={handleSubmit} noValidate>
@@ -151,6 +148,6 @@ export default function Register() {
           Log in
         </Link>
       </p>
-    </div>
+    </AuthLayout>
   )
 }

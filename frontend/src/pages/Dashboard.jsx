@@ -1,319 +1,493 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import BrandIcon from '../components/BrandIcon'
-
-const products = [
-  {
-    name: 'Cow Milk',
-    category: 'Milk',
-    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Goat Milk',
-    category: 'Milk',
-    image: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Fresh Water Fish',
-    category: 'Fish',
-    image: 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Sea Fish',
-    category: 'Fish',
-    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Fresh Water Prawn',
-    category: 'Prawn',
-    image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Sea Prawn',
-    category: 'Prawn',
-    image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Country Chicken',
-    category: 'Chicken',
-    image: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Broiler Chicken',
-    category: 'Chicken',
-    image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Country Eggs',
-    category: 'Eggs',
-    image: '/product-images/country-eggs.svg',
-  },
-  {
-    name: 'White Eggs',
-    category: 'Eggs',
-    image: '/product-images/white-eggs.svg',
-  },
-  {
-    name: 'Quail Eggs',
-    category: 'Eggs',
-    image: '/product-images/quail-eggs.svg',
-  },
-  {
-    name: 'Duck Eggs',
-    category: 'Eggs',
-    image: '/product-images/duck-eggs.svg',
-  },
-  {
-    name: 'Goat Meat',
-    category: 'Meat',
-    image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=600&q=75',
-  },
-  {
-    name: 'Other Farm Products',
-    category: 'Farm Fresh',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=75',
-  },
-]
-
-const quickStats = [
-  { label: 'Fresh items', value: '14+' },
-  { label: 'Delivery slot', value: 'Morning' },
-  { label: 'Orders', value: '0' },
-]
+import CategoryCard from '../components/CategoryCard'
+import ProductCard from '../components/ProductCard'
+import LoadingState from '../components/LoadingState'
+import ErrorState from '../components/ErrorState'
+import ProductDetailsModal from '../components/ProductDetailsModal'
+import SiteFooter from '../components/SiteFooter'
+import CustomerProfilePanel from '../components/CustomerProfilePanel'
+import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
+import {
+  getCategories,
+  getFeaturedProducts,
+  getPopularProducts,
+  getProducts,
+} from '../api/catalog'
+import { extractErrorMessage } from '../api/client'
+import { BRAND_NAME, BRAND_TAGLINE, heroSlides } from '../data/brand'
 
 export default function Dashboard() {
   const { customer, logout } = useAuth()
+  const { cartCount, addToCart } = useCart()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('home')
-  const [location, setLocation] = useState(customer?.village || '')
-  const [locationStatus, setLocationStatus] = useState('')
-  const [locating, setLocating] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [featuredProducts, setFeaturedProducts] = useState([])
+  const [popularProducts, setPopularProducts] = useState([])
+  const [searchResults, setSearchResults] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
+  const [error, setError] = useState('')
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [activeSlide, setActiveSlide] = useState(0)
+
+  const loadHome = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [categoryData, featuredData, popularData] = await Promise.all([
+        getCategories(),
+        getFeaturedProducts(),
+        getPopularProducts(),
+      ])
+      setCategories(categoryData)
+      setFeaturedProducts(featuredData)
+      setPopularProducts(popularData)
+    } catch (err) {
+      setError(extractErrorMessage(err))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadHome()
+  }, [])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveSlide((index) => (index + 1) % heroSlides.length)
+    }, 4500)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  useEffect(() => {
+    const query = searchTerm.trim()
+    if (!query) {
+      setSearchResults([])
+      setSearching(false)
+      return
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      setSearching(true)
+      try {
+        const data = await getProducts(query)
+        setSearchResults(data)
+      } catch {
+        setSearchResults([])
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [searchTerm])
 
   const handleLogout = async () => {
     await logout()
     navigate('/login', { replace: true })
   }
 
-  const handleUseCurrentLocation = () => {
-    setLocationStatus('')
-
-    if (!navigator.geolocation) {
-      setLocationStatus('Location is not supported on this device.')
-      return
-    }
-
-    setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-        setLocation(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`)
-        setLocationStatus('Current location added for delivery.')
-        setLocating(false)
-      },
-      () => {
-        setLocationStatus('Unable to get location. Please allow permission or use your village.')
-        setLocating(false)
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
+  const handleAddToCart = (product) => {
+    addToCart(product)
+    setNotice(`${product.product_name} added to cart`)
+    window.setTimeout(() => setNotice(''), 1800)
   }
 
-  const initials = customer?.full_name
-    ?.split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((name) => name[0])
-    .join('')
-    .toUpperCase()
-
-  const filteredProducts = products.filter((product) => {
-    const query = searchTerm.trim().toLowerCase()
-    if (!query) return true
-    return `${product.name} ${product.category}`.toLowerCase().includes(query)
-  })
+  const hasSearch = searchTerm.trim().length > 0
+  const avatarLetter = customer?.full_name?.charAt(0)?.toUpperCase() || BRAND_NAME.charAt(0)
+  const activeHero = heroSlides[activeSlide]
 
   return (
-    <div className="app-shell min-h-screen bg-soil-50">
-      <header className="sticky top-0 z-10 border-b border-soil-100 bg-white/95 px-5 pb-4 pt-5 backdrop-blur">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <BrandIcon className="h-11 w-11" />
-            <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">GraminFresh</p>
-              <h1 className="truncate font-display text-2xl font-semibold text-soil-700">
-                Hi, {customer?.full_name?.split(' ')[0] || 'Customer'}
-              </h1>
+    <div className="min-h-screen bg-soil-50 text-soil-700">
+      <main>
+        <section id="home" className="bg-[#eef7ed] lg:hidden">
+          <div className="bg-[#2d6f35] px-4 pb-7 pt-7 text-white">
+            <div className="flex items-center justify-between gap-3">
+              <Link to="/customer/dashboard" className="flex min-w-0 items-center gap-3">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                  <BrandIcon className="h-10 w-10" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="truncate text-lg font-bold text-white">{BRAND_NAME}</h1>
+                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.08em] text-white/75">
+                    Village Farm
+                  </p>
+                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.08em] text-white/75">
+                    Delivery
+                  </p>
+                </div>
+              </Link>
+
+              <div className="flex shrink-0 items-center gap-2">
+                <Link
+                  to="/cart"
+                  className="rounded-2xl bg-white/15 px-3 py-3 text-xs font-bold text-white"
+                >
+                  My Cart {cartCount}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen(true)}
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff3bd] text-2xl font-bold text-[#2d6f35]"
+                  aria-label="Open profile details"
+                >
+                  {avatarLetter}
+                </button>
+              </div>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="shrink-0 rounded-xl border border-soil-200 bg-white px-3 py-2 text-sm font-semibold text-soil-600 active:bg-soil-100"
-          >
-            Logout
-          </button>
-        </div>
 
-        <div className="mt-4 rounded-2xl border border-leaf-400/30 bg-leaf-600 px-4 py-3 text-white">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-leaf-100">Deliver to</p>
-              <p className="mt-1 break-words text-sm font-semibold">{location || 'Add your delivery location'}</p>
+          <div className="-mt-4 px-4 pb-8">
+            <nav className="grid grid-cols-4 gap-1 rounded-3xl bg-white/95 p-2 text-center text-[11px] font-bold text-[#6f7f6d] shadow-[0_18px_42px_-28px_rgba(17,135,7,0.75)] ring-1 ring-white">
+              <a className="rounded-2xl bg-[#118707] px-2 py-3 text-white shadow-sm" href="#home">
+                Home
+              </a>
+              <a className="rounded-2xl px-2 py-3" href="#categories">
+                Categories
+              </a>
+              <a className="rounded-2xl px-2 py-3" href="#featured">
+                Featured
+              </a>
+              <a className="rounded-2xl px-2 py-3" href="#popular">
+                Popular
+              </a>
+            </nav>
+
+            <div className="relative mt-5 min-h-[305px] overflow-hidden rounded-3xl bg-soil-700 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.65)]">
+              {heroSlides.map((slide, index) => (
+                <img
+                  key={slide.image}
+                  src={slide.image}
+                  alt={slide.title}
+                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                    index === activeSlide ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0c3b15]/70 via-[#0c3b15]/35 to-black/55" />
+              <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                <p className="inline-flex rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white">
+                  {activeHero.badge}
+                </p>
+                <h2 className="mt-4 max-w-[330px] text-3xl font-bold leading-tight text-white">
+                  {activeHero.headline}
+                </h2>
+                <p className="mt-3 max-w-[330px] text-sm font-semibold leading-6 text-white/85">
+                  {activeHero.detail}
+                </p>
+                <div className="mt-6 flex justify-center gap-2">
+                  {heroSlides.map((slide, index) => (
+                    <button
+                      key={slide.title}
+                      type="button"
+                      onClick={() => setActiveSlide(index)}
+                      className={`h-2.5 rounded-full transition-all ${
+                        index === activeSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/55'
+                      }`}
+                      aria-label={`Show ${slide.title}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <label htmlFor="mobile_product_search" className="sr-only">
+              Search by product or category
+            </label>
+            <div className="mt-5 flex min-h-[70px] items-center gap-3 rounded-2xl bg-white px-5 shadow-[0_18px_44px_-30px_rgba(17,135,7,0.8)]">
+              <SearchIcon />
+              <input
+                id="mobile_product_search"
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search milk, fish, eggs..."
+                className="min-w-0 flex-1 bg-transparent text-base font-medium text-soil-700 placeholder:text-soil-400 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchTerm(searchTerm.trim())}
+                className="rounded-2xl bg-[#118707] px-5 py-3 text-sm font-bold text-white"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="hidden bg-[#eef7ed] lg:block">
+          <div className="mx-auto flex max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
+            <header className="rounded-2xl bg-white px-4 py-3 shadow-[0_18px_60px_-28px_rgba(0,0,0,0.65)]">
+              <div className="flex items-center justify-between gap-3">
+                <Link to="/customer/dashboard" className="flex min-w-0 items-center gap-3">
+                  <BrandIcon className="h-10 w-10" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">
+                      {BRAND_NAME}
+                    </p>
+                    <h1 className="truncate font-display text-xl font-semibold text-soil-700">
+                      {BRAND_TAGLINE}
+                    </h1>
+                  </div>
+                </Link>
+
+                <nav className="hidden items-center gap-6 text-sm font-bold text-soil-600 lg:flex">
+                  <a className="hover:text-leaf-700" href="#home">Home</a>
+                  <a className="hover:text-leaf-700" href="#categories">Categories</a>
+                  <a className="hover:text-leaf-700" href="#featured">Featured</a>
+                  <a className="hover:text-leaf-700" href="#popular">Popular</a>
+                </nav>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  <Link
+                    to="/cart"
+                    className="rounded-full border border-leaf-500/30 bg-leaf-600/10 px-3 py-2 text-sm font-bold text-leaf-700 backdrop-blur"
+                  >
+                    My Cart {cartCount}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setProfileOpen(true)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#fff3bd] text-lg font-bold text-[#118707]"
+                    aria-label="Open profile details"
+                  >
+                    {avatarLetter}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-4 gap-2 rounded-xl bg-soil-50 p-1 text-center text-sm font-bold text-soil-600 lg:hidden">
+                <a className="rounded-lg px-2 py-2 hover:bg-white hover:text-leaf-700" href="#home">Home</a>
+                <a className="rounded-lg px-2 py-2 hover:bg-white hover:text-leaf-700" href="#categories">Category</a>
+                <a className="rounded-lg px-2 py-2 hover:bg-white hover:text-leaf-700" href="#featured">Featured</a>
+                <a className="rounded-lg px-2 py-2 hover:bg-white hover:text-leaf-700" href="#popular">Popular</a>
+              </div>
+            </header>
+
+            <div className="relative mt-5 h-[360px] overflow-hidden rounded-3xl bg-soil-700 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.65)] xl:h-[390px]">
+              {heroSlides.map((slide, index) => (
+                <img
+                  key={slide.image}
+                  src={slide.image}
+                  alt={slide.title}
+                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                    index === activeSlide ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0c3b15]/70 via-[#0c3b15]/35 to-black/55" />
+              <div className="absolute inset-x-0 bottom-0 p-8 text-white">
+                <p className="inline-flex rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white">
+                  {activeHero.badge}
+                </p>
+                <h2 className="mt-4 max-w-[560px] text-4xl font-bold leading-tight text-white">
+                  {activeHero.headline}
+                </h2>
+                <p className="mt-3 max-w-[560px] text-sm font-semibold leading-6 text-white/85">
+                  {activeHero.detail}
+                </p>
+                <div className="mt-6 flex items-center gap-2">
+                  {heroSlides.map((slide, index) => (
+                    <button
+                      key={slide.title}
+                      type="button"
+                      onClick={() => setActiveSlide(index)}
+                      className={`h-2.5 rounded-full transition-all ${
+                        index === activeSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/55'
+                      }`}
+                      aria-label={`Show ${slide.title}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:pt-10">
+          <label htmlFor="product_search" className="sr-only">
+            Search by product or category
+          </label>
+          <div className="-mt-2 mb-8 hidden flex-col gap-3 sm:flex-row sm:items-center sm:justify-center lg:flex">
+            <div className="flex min-h-[58px] w-full items-center gap-3 rounded-xl bg-white px-4 shadow-[0_12px_28px_-18px_rgba(0,0,0,0.55)] ring-1 ring-soil-100 sm:max-w-xl">
+              <SearchIcon />
+              <input
+                id="product_search"
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search milk, fish, prawn, eggs..."
+                className="min-w-0 flex-1 bg-transparent text-base font-medium text-soil-700 placeholder:text-soil-400 focus:outline-none"
+              />
             </div>
             <button
               type="button"
-              onClick={handleUseCurrentLocation}
-              disabled={locating}
-              className="shrink-0 rounded-lg bg-white/15 px-3 py-2 text-xs font-semibold disabled:opacity-70"
+              onClick={() => setSearchTerm(searchTerm.trim())}
+              className="min-h-[58px] rounded-xl bg-leaf-600 px-8 text-sm font-bold text-white shadow-[0_12px_30px_-16px_rgba(17,135,7,0.85)] transition hover:bg-leaf-700 sm:w-auto"
             >
-              {locating ? 'Finding' : 'Use GPS'}
+              Search
             </button>
           </div>
-          {locationStatus && <p className="mt-2 text-xs text-leaf-100">{locationStatus}</p>}
-        </div>
-      </header>
 
-      <main className="px-5 pb-24 pt-5">
-        {activeTab === 'home' ? (
-          <>
-            <section className="mb-5 rounded-2xl bg-white p-4 shadow-sm shadow-soil-200/60">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-soil-500">Customer ID</p>
-                  <p className="mt-1 font-mono text-lg font-bold text-soil-700">{customer?.customer_id}</p>
-                </div>
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-soil-100 text-lg font-bold text-leaf-700">
-                  {initials || 'GF'}
-                </div>
-              </div>
-            </section>
+          {notice && (
+            <div className="fixed right-4 top-28 z-40 rounded-lg bg-soil-700 px-4 py-3 text-sm font-bold text-white shadow-lg">
+              {notice}
+            </div>
+          )}
 
-            <section className="mb-5 grid grid-cols-3 gap-3">
-              {quickStats.map((item) => (
-                <div key={item.label} className="rounded-2xl bg-white px-3 py-4 text-center shadow-sm shadow-soil-200/50">
-                  <p className="text-lg font-bold text-leaf-700">{item.value}</p>
-                  <p className="mt-1 text-[11px] font-medium leading-tight text-soil-500">{item.label}</p>
-                </div>
-              ))}
-            </section>
+          {loading ? (
+            <LoadingState />
+          ) : error ? (
+            <ErrorState message={error} onRetry={loadHome} />
+          ) : (
+            <>
+              {hasSearch && (
+                <section className="mb-10">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h2 className="font-display text-2xl font-semibold text-soil-700">
+                      Search Results
+                    </h2>
+                    <span className="text-sm font-bold text-leaf-600">
+                      {searching ? 'Searching...' : `${searchResults.length} items`}
+                    </span>
+                  </div>
+                  {searching ? (
+                    <LoadingState message="Searching products..." />
+                  ) : searchResults.length > 0 ? (
+                    <ProductGrid
+                      products={searchResults}
+                      onAddToCart={handleAddToCart}
+                      onViewDetails={setSelectedProduct}
+                    />
+                  ) : (
+                    <EmptyState message="No products matched your search." />
+                  )}
+                </section>
+              )}
 
-            <section className="mb-5">
-              <label htmlFor="product_search" className="sr-only">
-                Search products
-              </label>
-              <div className="flex items-center gap-3 rounded-2xl border border-soil-100 bg-white px-4 py-3 shadow-sm shadow-soil-200/40">
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="h-5 w-5 shrink-0 text-soil-400"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m20 20-4.2-4.2m1.2-5.3a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <input
-                  id="product_search"
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search milk, fish, eggs..."
-                  className="min-w-0 flex-1 bg-transparent text-base font-medium text-soil-700 placeholder:text-soil-400 focus:outline-none"
+              <section id="categories" className="mb-10 scroll-mt-36">
+                <SectionTitle
+                  title="Shop by Category"
+                  detail="Choose a farm category and browse matching products."
                 />
-              </div>
-            </section>
-
-            <section className="mb-5">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-display text-xl font-semibold text-soil-700">Fresh products</h2>
-                <span className="text-xs font-semibold text-leaf-600">{filteredProducts.length} items</span>
-              </div>
-              {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {filteredProducts.map((product) => (
-                    <button
-                      key={product.name}
-                      type="button"
-                      className="overflow-hidden rounded-2xl border border-soil-100 bg-white text-left shadow-sm shadow-soil-200/40 active:border-leaf-400"
-                    >
-                      <div className="aspect-[4/3] w-full overflow-hidden bg-soil-100">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="p-3">
-                        <span className="block text-sm font-bold leading-snug text-soil-700">{product.name}</span>
-                        <span className="mt-1 block text-xs font-semibold text-leaf-600">{product.category}</span>
-                        <span className="mt-2 block text-xs font-medium text-soil-500">Available soon</span>
-                      </div>
-                    </button>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                  {categories.map((category) => (
+                    <CategoryCard key={category.id} category={category} />
                   ))}
                 </div>
-              ) : (
-                <div className="rounded-2xl border border-soil-100 bg-white p-5 text-center text-sm font-semibold text-soil-500">
-                  No products found
-                </div>
-              )}
-            </section>
-          </>
-        ) : (
-          <section className="rounded-2xl bg-white p-5 shadow-sm shadow-soil-200/60">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-leaf-600 text-xl font-bold text-white">
-                {initials || 'GF'}
-              </div>
-              <div className="min-w-0">
-                <h2 className="truncate font-display text-2xl font-semibold text-soil-700">{customer?.full_name}</h2>
-                <p className="font-mono text-sm font-semibold text-leaf-700">{customer?.customer_id}</p>
-              </div>
-            </div>
+              </section>
 
-            <dl className="space-y-4 text-sm">
-              <div className="border-b border-soil-100 pb-4">
-                <dt className="font-semibold text-soil-500">Mobile Number</dt>
-                <dd className="mt-1 text-base font-semibold text-soil-700">{customer?.mobile_number}</dd>
-              </div>
-              <div className="border-b border-soil-100 pb-4">
-                <dt className="font-semibold text-soil-500">Email Address</dt>
-                <dd className="mt-1 break-words text-base font-semibold text-soil-700">
-                  {customer?.email || '-'}
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-soil-500">Village / Location</dt>
-                <dd className="mt-1 break-words text-base font-semibold text-soil-700">
-                  {customer?.village || '-'}
-                </dd>
-              </div>
-            </dl>
-          </section>
-        )}
+              <section id="featured" className="mb-10 scroll-mt-36">
+                <SectionTitle title="Featured Products" detail="Fresh picks highlighted for today." />
+                <ProductGrid
+                  products={featuredProducts}
+                  onAddToCart={handleAddToCart}
+                  onViewDetails={setSelectedProduct}
+                  scrollOnMobile
+                />
+              </section>
+
+              <section id="popular" className="scroll-mt-36">
+                <SectionTitle title="Popular Products" detail="High-stock essentials customers buy often." />
+                <ProductGrid
+                  products={popularProducts}
+                  onAddToCart={handleAddToCart}
+                  onViewDetails={setSelectedProduct}
+                  scrollOnMobile
+                />
+              </section>
+            </>
+          )}
+        </div>
       </main>
 
-      <nav className="fixed bottom-0 left-1/2 z-20 grid w-full max-w-[480px] -translate-x-1/2 grid-cols-2 border-t border-soil-100 bg-white px-5 py-3">
-        <button
-          type="button"
-          onClick={() => setActiveTab('home')}
-          className={`rounded-xl py-3 text-sm font-bold ${activeTab === 'home' ? 'bg-leaf-600 text-white' : 'text-soil-500'}`}
-        >
-          Home
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('profile')}
-          className={`rounded-xl py-3 text-sm font-bold ${activeTab === 'profile' ? 'bg-leaf-600 text-white' : 'text-soil-500'}`}
-        >
-          Profile
-        </button>
-      </nav>
+      <SiteFooter />
+
+      <ProductDetailsModal
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCart={handleAddToCart}
+      />
+      <CustomerProfilePanel
+        customer={customer}
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onLogout={handleLogout}
+      />
     </div>
+  )
+}
+
+function SectionTitle({ title, detail }) {
+  return (
+    <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 className="font-display text-2xl font-semibold text-soil-700">{title}</h2>
+        <p className="mt-1 text-sm text-soil-500">{detail}</p>
+      </div>
+    </div>
+  )
+}
+
+function ProductGrid({ products, onAddToCart, onViewDetails, scrollOnMobile = false }) {
+  if (!products.length) return <EmptyState message="No products available." />
+
+  if (scrollOnMobile) {
+    return (
+      <div className="flex snap-x gap-3 overflow-x-auto px-2 pb-3 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
+        {products.map((product) => (
+          <div key={product.id} className="w-[66vw] max-w-[260px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+            <ProductCard
+              product={product}
+              onAddToCart={onAddToCart}
+              onViewDetails={onViewDetails}
+            />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          onAddToCart={onAddToCart}
+          onViewDetails={onViewDetails}
+        />
+      ))}
+    </div>
+  )
+}
+
+function EmptyState({ message }) {
+  return (
+    <div className="rounded-lg border border-soil-100 bg-white p-8 text-center text-sm font-semibold text-soil-500">
+      {message}
+    </div>
+  )
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 shrink-0 text-soil-400" fill="none">
+      <path
+        d="m20 20-4.2-4.2m1.2-5A6.2 6.2 0 1 1 4.6 10.8a6.2 6.2 0 0 1 12.4 0Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
   )
 }

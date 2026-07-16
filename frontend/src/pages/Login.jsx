@@ -6,7 +6,7 @@ import AlertBanner from '../components/AlertBanner'
 import { loginWithPassword, requestOtp, verifyOtp } from '../api/auth'
 import { extractErrorMessage } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import BrandIcon from '../components/BrandIcon'
+import AuthLayout from '../components/AuthLayout'
 
 export default function Login() {
   const [mode, setMode] = useState('password') // 'password' | 'otp'
@@ -101,18 +101,11 @@ export default function Login() {
   }
 
   return (
-    <div className="app-shell flex min-h-screen items-center bg-gradient-to-br from-soil-50 via-white to-leaf-400/20 px-6 py-8">
-      <div className="w-full rounded-[28px] border border-white/80 bg-white/75 px-5 py-6 shadow-2xl shadow-leaf-700/10 backdrop-blur">
-        <div className="mb-7">
-          <BrandIcon showText />
-        </div>
-
-        <div className="mb-7">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-soil-400">Welcome back</p>
-          <h1 className="font-display text-3xl font-semibold text-soil-700">Log in to your account</h1>
-          <p className="mt-2 text-sm text-soil-600">Track orders and shop fresh farm products.</p>
-        </div>
-
+    <AuthLayout
+      eyebrow="Welcome back"
+      title="Log in to your account"
+      description="Track orders and shop fresh farm products from your trusted local marketplace."
+    >
         <div className="mb-6 grid grid-cols-2 rounded-xl bg-soil-100 p-1">
           <button
             type="button"
@@ -257,7 +250,6 @@ export default function Login() {
             Create an account
           </Link>
         </p>
-      </div>
-    </div>
+    </AuthLayout>
   )
 }
