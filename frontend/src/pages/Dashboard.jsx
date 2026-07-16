@@ -403,6 +403,7 @@ export default function Dashboard() {
                   onAddToCart={handleAddToCart}
                   onViewDetails={setSelectedProduct}
                   scrollOnMobile
+                  showPopularBadge={true}
                 />
               </section>
             </>
@@ -438,7 +439,7 @@ function SectionTitle({ title, detail }) {
   )
 }
 
-function ProductGrid({ products, onAddToCart, onViewDetails, scrollOnMobile = false }) {
+function ProductGrid({ products, onAddToCart, onViewDetails, scrollOnMobile = false, showPopularBadge = false }) {
   if (!products.length) return <EmptyState message="No products available." />
 
   if (scrollOnMobile) {
@@ -450,6 +451,7 @@ function ProductGrid({ products, onAddToCart, onViewDetails, scrollOnMobile = fa
               product={product}
               onAddToCart={onAddToCart}
               onViewDetails={onViewDetails}
+              showPopularBadge={showPopularBadge}
             />
           </div>
         ))}
@@ -465,6 +467,7 @@ function ProductGrid({ products, onAddToCart, onViewDetails, scrollOnMobile = fa
           product={product}
           onAddToCart={onAddToCart}
           onViewDetails={onViewDetails}
+          showPopularBadge={showPopularBadge}
         />
       ))}
     </div>

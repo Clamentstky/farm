@@ -1,6 +1,6 @@
 import { productImage } from '../data/brand'
 
-export default function ProductCard({ product, onAddToCart, onViewDetails }) {
+export default function ProductCard({ product, onAddToCart, onViewDetails, showPopularBadge = false }) {
   const price = Number(product.price).toFixed(2)
   const inStock = product.stock > 0
 
@@ -11,13 +11,23 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
       className="cursor-pointer overflow-hidden rounded-lg border border-soil-100 bg-white shadow-sm shadow-soil-200/50 transition hover:border-leaf-400"
       onClick={openDetails}
     >
-      <div className="aspect-[16/10] overflow-hidden bg-soil-100 sm:aspect-[5/3]">
+      <div className="relative aspect-[16/10] overflow-hidden bg-soil-100 sm:aspect-[5/3]">
         <img
           src={productImage(product)}
           alt={product.product_name}
           className="h-full w-full object-cover"
           loading="lazy"
         />
+        {showPopularBadge && (
+          <div className="absolute right-0 top-0 bg-leaf-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-md">
+            Popular
+          </div>
+        )}
+        {!showPopularBadge && product.is_featured && (
+          <div className="absolute right-0 top-0 bg-leaf-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-md">
+            Featured
+          </div>
+        )}
       </div>
       <div className="flex min-h-[178px] flex-col p-3">
         <div className="flex-1">

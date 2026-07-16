@@ -49,7 +49,7 @@ const imageByName = {
   Crab:
     'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=1000&q=85',
   Meat:
-    'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&w=1000&q=85',
   'A2 Cow Milk':
     '/product-images/raw-milk-bowl.svg',
   'Fresh Cow Milk':
@@ -61,7 +61,7 @@ const imageByName = {
   'Goat Milk':
     'https://milkup.co.id/cdn/shop/products/rawgoatmilk1.jpg?v=1670659240&width=1000',
   'Goat Meat Curry Cut':
-    'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&w=1000&q=85',
   'Country Chicken':
     'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=1000&q=85',
   'Broiler Chicken':
@@ -81,7 +81,7 @@ const imageByName = {
   'Live Mud Crab':
     'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=1000&q=85',
   'Mutton Curry Cut':
-    'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=1000&q=85',
+    'https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&w=1000&q=85',
 }
 
 export function categoryImage(category) {
