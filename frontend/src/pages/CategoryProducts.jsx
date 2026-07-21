@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import BrandIcon from '../components/BrandIcon'
+import CartButton from '../components/CartButton'
 import CategoryCard from '../components/CategoryCard'
 import ProductCard from '../components/ProductCard'
 import LoadingState from '../components/LoadingState'
@@ -89,12 +90,7 @@ export default function CategoryProducts() {
               </div>
             </Link>
             <div className="flex shrink-0 items-center justify-end gap-2">
-              <Link
-                to="/cart"
-                className="rounded-full border border-leaf-500/30 bg-leaf-600/10 px-3 py-2 text-sm font-bold text-leaf-700"
-              >
-                My Cart {cartCount}
-              </Link>
+              <CartButton count={cartCount} to="/cart" />
               <button
                 type="button"
                 onClick={() => setProfileOpen(true)}

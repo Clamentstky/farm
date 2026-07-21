@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BrandIcon from '../components/BrandIcon'
+import CartButton from '../components/CartButton'
 import ErrorState from '../components/ErrorState'
 import LoadingState from '../components/LoadingState'
 import SiteFooter from '../components/SiteFooter'
@@ -60,12 +61,7 @@ export default function CartPage() {
             </div>
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <Link
-              to="/cart"
-              className="rounded-full border border-leaf-500/30 bg-leaf-600/10 px-3 py-2 text-sm font-bold text-leaf-700"
-            >
-              My Cart {cartCount}
-            </Link>
+            <CartButton count={cartCount} to="/cart" />
             <button
               type="button"
               onClick={handleLogout}
