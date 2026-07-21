@@ -11,86 +11,98 @@ const productLinks = [
 
 const galleryImages = [
   {
-    src: '/product-images/raw-milk-bowl.svg',
-    alt: 'Raw milk in bowl',
+    src: '/product-images/curd4.jpg',
+    alt: 'Fresh farm milk',
   },
   {
-    src: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=300&q=80',
-    alt: 'Country chicken farm',
+    src: '/product-images/white%20egg4.jpg',
+    alt: 'Country eggs',
   },
   {
-    src: 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?auto=format&fit=crop&w=300&q=80',
-    alt: 'Fresh eggs',
+    src: '/product-images/crab3.jpg',
+    alt: 'Fresh prawns',
   },
   {
-    src: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=300&q=80',
-    alt: 'Fresh fish',
+    src: '/product-images/sardine4.jpg',
+    alt: 'Fresh meat cuts',
   },
 ]
 
 export default function SiteFooter({ compact = false }) {
   return (
-    <footer className="mt-12 bg-soil-50 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl rounded-[2rem] bg-[linear-gradient(135deg,_#8ed8c8_0%,_#43b86b_55%,_#118707_100%)] p-3 shadow-[0_24px_70px_-34px_rgba(0,0,0,0.55)] sm:p-4">
-        <div className="rounded-[1.5rem] bg-[#118707]/95 px-5 py-8 text-white sm:px-8 lg:px-12 lg:py-11">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.45fr_0.8fr_0.75fr_1fr]">
-          <div className="max-w-sm">
-            <div className="flex items-center gap-3">
-              <BrandIcon className="h-8 w-8" />
-              <div>
-                <p className="font-display text-lg font-semibold text-white">{BRAND_FULL_NAME}</p>
+    <footer className="mt-12 bg-[#eef7ed] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="farm-footer-shell mx-auto max-w-7xl rounded-[2rem] p-3 shadow-[0_24px_70px_-34px_rgba(0,0,0,0.55)] sm:p-4">
+        <div className="rounded-[1.5rem] bg-[#055205]/95 px-5 py-8 text-white sm:px-8 lg:px-12 lg:py-11">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-2 lg:grid-cols-[1.45fr_0.8fr_0.75fr_1fr] lg:gap-8">
+            <div className="col-span-2 max-w-sm lg:col-span-1">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/15">
+                  <BrandIcon className="h-8 w-8" />
+                </div>
+                <div>
+                  <p className="font-display text-xl font-semibold text-white">{BRAND_FULL_NAME}</p>
+                  <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-white/60">
+                    Village Farm Delivery
+                  </p>
+                </div>
+              </div>
+              <p className="mt-5 text-sm font-medium leading-7 text-white/75">
+                Fresh dairy, fish, prawn, eggs, crab and meat from trusted local suppliers,
+                packed cleanly and delivered fresh across nearby villages.
+              </p>
+
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <FooterStat title="Farm Fresh" detail="Locally sourced" />
+                <FooterStat title="Trusted" detail="Quality products" />
+                <FooterStat title="Local Delivery" detail="Closer to home" />
               </div>
             </div>
-            <p className="mt-5 text-sm leading-7 text-white/78">
-              Fresh dairy, fish, prawn, eggs, crab and meat from trusted local suppliers,
-              packed cleanly and delivered fresh across nearby villages.
-            </p>
-          </div>
 
-          <div className="hidden md:block">
-            <FooterTitle>Product</FooterTitle>
-            <div className="grid gap-3 text-sm font-medium text-white/76">
-              {productLinks.map((product) => (
-                <a key={product} href="#featured" className="hover:text-white">
-                  {product}
-                </a>
-              ))}
+            <div>
+              <FooterTitle>Product</FooterTitle>
+              <div className="grid gap-3 text-sm font-semibold text-white/72">
+                {productLinks.map((product) => (
+                  <Link key={product} to="/customer/dashboard#featured" className="hover:text-white">
+                    {product}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <FooterTitle>Links</FooterTitle>
+              <div className="grid gap-3 text-sm font-semibold text-white/72">
+                <Link to="/customer/dashboard#home" className="hover:text-white">Home</Link>
+                <Link to="/customer/dashboard#categories" className="hover:text-white">Categories</Link>
+                <Link to="/customer/dashboard#featured" className="hover:text-white">Featured</Link>
+                <Link to="/customer/dashboard#popular" className="hover:text-white">Popular</Link>
+                {!compact && (
+                  <Link to="/customer/dashboard" className="hover:text-white">
+                    Dashboard
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            <div className="col-span-2 w-full lg:col-span-1">
+              <FooterTitle>Gallery</FooterTitle>
+              <div className="grid w-full grid-cols-2 gap-3 sm:max-w-sm md:max-w-md lg:max-w-[220px]">
+                {galleryImages.map((image) => (
+                  <img
+                    key={image.src}
+                    src={image.src}
+                    alt={image.alt}
+                    className="aspect-[4/3] w-full rounded-lg object-cover shadow-sm shadow-black/20 ring-1 ring-white/10"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="hidden md:block">
-            <FooterTitle>Links</FooterTitle>
-            <div className="grid gap-3 text-sm font-medium text-white/76">
-              <a href="#home" className="hover:text-white">Home</a>
-              <a href="#categories" className="hover:text-white">Categories</a>
-              <a href="#featured" className="hover:text-white">Featured</a>
-              <a href="#popular" className="hover:text-white">Popular</a>
-              {!compact && (
-                <Link to="/customer/dashboard" className="hover:text-white">
-                  Dashboard
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <div className="w-full md:col-span-2 lg:col-span-1">
-            <FooterTitle>Gallery</FooterTitle>
-            <div className="grid w-full grid-cols-2 gap-3 sm:max-w-sm md:max-w-md lg:max-w-[190px]">
-              {galleryImages.map((image) => (
-                <img
-                  key={image.src}
-                  src={image.src}
-                  alt={image.alt}
-                  className="aspect-[4/3] w-full rounded-sm object-cover shadow-sm shadow-black/20"
-                  loading="lazy"
-                />
-              ))}
-            </div>
-          </div>
-          </div>
-
-          <div className="mt-8 rounded-2xl bg-white/10 px-4 py-4 text-center text-xs font-semibold text-white/70 ring-1 ring-white/10">
-            Copyright 2026 by FreshNest Farm Market
+          <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 text-xs font-semibold text-white/60 sm:flex-row sm:items-center sm:justify-between">
+            <p>Copyright 2026 by FreshNest Farm Market</p>
+            <p>Fresh from local farms, delivered with care.</p>
           </div>
         </div>
       </div>
@@ -100,8 +112,17 @@ export default function SiteFooter({ compact = false }) {
 
 function FooterTitle({ children }) {
   return (
-    <h2 className="mb-5 font-display text-base font-semibold text-white">
+    <h2 className="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-white">
       {children}
     </h2>
+  )
+}
+
+function FooterStat({ title, detail }) {
+  return (
+    <div className="rounded-2xl bg-white/10 px-3 py-4 text-center ring-1 ring-white/10">
+      <p className="text-xs font-bold text-white">{title}</p>
+      <p className="mt-1 text-[11px] font-semibold text-white/55">{detail}</p>
+    </div>
   )
 }

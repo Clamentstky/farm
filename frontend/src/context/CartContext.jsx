@@ -1,49 +1,76 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { addCartItem, getCartItems, removeCartItem, updateCartItem } from '../api/cart'
+import { extractErrorMessage } from '../api/client'
+import { useAuth } from './AuthContext'
 
 const CartContext = createContext(null)
 
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState(() => {
-    const stored = localStorage.getItem('cart_items')
-    return stored ? JSON.parse(stored) : []
-  })
+  const { customer } = useAuth()
+  const [cartItems, setCartItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const saveCart = (updater) => {
+  const refreshCart = useCallback(async () => {
+    const token = localStorage.getItem('access_token')
+    if (!customer || !token) {
+      setCartItems([])
+      return []
+    }
+
+    setLoading(true)
+    setError('')
+    try {
+      const items = await getCartItems()
+      setCartItems(items)
+      return items
+    } catch (err) {
+      setError(extractErrorMessage(err))
+      return []
+    } finally {
+      setLoading(false)
+    }
+  }, [customer])
+
+  useEffect(() => {
+    refreshCart()
+  }, [refreshCart])
+
+  const addToCart = async (product, quantity = 1) => {
+    if (!localStorage.getItem('access_token')) {
+      throw new Error('Please log in to add items to cart.')
+    }
+    setError('')
+    const savedItem = await addCartItem(product.id, quantity)
     setCartItems((items) => {
-      const nextItems = updater(items)
-      localStorage.setItem('cart_items', JSON.stringify(nextItems))
-      return nextItems
-    })
-  }
-
-  const addToCart = (product) => {
-    saveCart((items) => {
-      const existing = items.find((item) => item.id === product.id)
+      const existing = items.find((item) => item.id === savedItem.id)
       if (existing) {
-        return items.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        )
+        return items.map((item) => (item.id === savedItem.id ? savedItem : item))
       }
-      return [...items, { ...product, quantity: 1 }]
+      return [savedItem, ...items]
     })
+    return savedItem
   }
 
-  const updateQuantity = (productId, quantity) => {
-    saveCart((items) =>
-      items
-        .map((item) =>
-          item.id === productId ? { ...item, quantity: Math.max(0, quantity) } : item
-        )
-        .filter((item) => item.quantity > 0)
-    )
+  const updateQuantity = async (cartItemId, quantity) => {
+    if (quantity < 1) {
+      return removeFromCart(cartItemId)
+    }
+
+    setError('')
+    const savedItem = await updateCartItem(cartItemId, quantity)
+    setCartItems((items) => items.map((item) => (item.id === cartItemId ? savedItem : item)))
+    return savedItem
   }
 
-  const removeFromCart = (productId) => {
-    saveCart((items) => items.filter((item) => item.id !== productId))
+  const removeFromCart = async (cartItemId) => {
+    setError('')
+    await removeCartItem(cartItemId)
+    setCartItems((items) => items.filter((item) => item.id !== cartItemId))
   }
 
-  const clearCart = () => {
-    localStorage.removeItem('cart_items')
+  const clearCart = async () => {
+    await Promise.all(cartItems.map((item) => removeCartItem(item.id)))
     setCartItems([])
   }
 
@@ -59,7 +86,18 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, clearCart }}
+      value={{
+        cartItems,
+        cartCount,
+        cartTotal,
+        loading,
+        error,
+        refreshCart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>

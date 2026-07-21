@@ -56,6 +56,9 @@ export default function ProductDetailsModal({ product, onClose, onAddToCart }) {
               src={productImage(product)}
               alt={product.product_name}
               className="h-80 w-full object-cover"
+              onError={(event) => {
+                event.currentTarget.src = productImage(product)
+              }}
             />
           </div>
 

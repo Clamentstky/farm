@@ -5,7 +5,6 @@ import CategoryCard from '../components/CategoryCard'
 import ProductCard from '../components/ProductCard'
 import LoadingState from '../components/LoadingState'
 import ErrorState from '../components/ErrorState'
-import ProductDetailsModal from '../components/ProductDetailsModal'
 import SiteFooter from '../components/SiteFooter'
 import CustomerProfilePanel from '../components/CustomerProfilePanel'
 import { useAuth } from '../context/AuthContext'
@@ -17,7 +16,7 @@ import {
   getProducts,
 } from '../api/catalog'
 import { extractErrorMessage } from '../api/client'
-import { BRAND_NAME, BRAND_TAGLINE, heroSlides } from '../data/brand'
+import { BRAND_NAME, BRAND_TAGLINE, heroSlides, orderedCategories } from '../data/brand'
 
 export default function Dashboard() {
   const { customer, logout } = useAuth()
@@ -31,7 +30,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState('')
-  const [selectedProduct, setSelectedProduct] = useState(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [activeSlide, setActiveSlide] = useState(0)
@@ -95,15 +93,20 @@ export default function Dashboard() {
     navigate('/login', { replace: true })
   }
 
-  const handleAddToCart = (product) => {
-    addToCart(product)
-    setNotice(`${product.product_name} added to cart`)
-    window.setTimeout(() => setNotice(''), 1800)
+  const handleAddToCart = async (product, quantity = 1) => {
+    try {
+      await addToCart(product, quantity)
+      setNotice(`${product.product_name} added to cart`)
+      window.setTimeout(() => setNotice(''), 1800)
+    } catch (err) {
+      setNotice(extractErrorMessage(err))
+      window.setTimeout(() => setNotice(''), 2200)
+    }
   }
 
   const hasSearch = searchTerm.trim().length > 0
   const avatarLetter = customer?.full_name?.charAt(0)?.toUpperCase() || BRAND_NAME.charAt(0)
-  const activeHero = heroSlides[activeSlide]
+  const displayCategories = orderedCategories(categories)
 
   return (
     <div className="min-h-screen bg-soil-50 text-soil-700">
@@ -145,23 +148,23 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="-mt-4 px-4 pb-8">
+            <div className="-mt-4 px-4 pb-8">
             <nav className="grid grid-cols-4 gap-1 rounded-3xl bg-white/95 p-2 text-center text-[11px] font-bold text-[#6f7f6d] shadow-[0_18px_42px_-28px_rgba(17,135,7,0.75)] ring-1 ring-white">
-              <a className="rounded-2xl bg-[#118707] px-2 py-3 text-white shadow-sm" href="#home">
+              <a className="rounded-2xl bg-[#118707] px-2 py-3 text-white shadow-sm" href="#home" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
                 Home
               </a>
-              <a className="rounded-2xl px-2 py-3" href="#categories">
+              <a className="rounded-2xl px-2 py-3" href="#categories" onClick={(e) => {e.preventDefault(); document.getElementById('categories')?.scrollIntoView({behavior: 'smooth', block: 'start'});}}>
                 Categories
               </a>
-              <a className="rounded-2xl px-2 py-3" href="#featured">
+              <a className="rounded-2xl px-2 py-3" href="#featured" onClick={(e) => {e.preventDefault(); document.getElementById('featured')?.scrollIntoView({behavior: 'smooth', block: 'start'});}}>
                 Featured
               </a>
-              <a className="rounded-2xl px-2 py-3" href="#popular">
+              <a className="rounded-2xl px-2 py-3" href="#popular" onClick={(e) => {e.preventDefault(); document.getElementById('popular')?.scrollIntoView({behavior: 'smooth', block: 'start'});}}>
                 Popular
               </a>
             </nav>
 
-            <div className="relative mt-5 min-h-[305px] overflow-hidden rounded-3xl bg-soil-700 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.65)]">
+            <div className="relative mt-5 aspect-[1719/915] overflow-hidden rounded-3xl bg-soil-700 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.65)]">
               {heroSlides.map((slide, index) => (
                 <img
                   key={slide.image}
@@ -172,25 +175,15 @@ export default function Dashboard() {
                   }`}
                 />
               ))}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#0c3b15]/70 via-[#0c3b15]/35 to-black/55" />
-              <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                <p className="inline-flex rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white">
-                  {activeHero.badge}
-                </p>
-                <h2 className="mt-4 max-w-[330px] text-3xl font-bold leading-tight text-white">
-                  {activeHero.headline}
-                </h2>
-                <p className="mt-3 max-w-[330px] text-sm font-semibold leading-6 text-white/85">
-                  {activeHero.detail}
-                </p>
-                <div className="mt-6 flex justify-center gap-2">
+              <div className="absolute inset-x-0 bottom-3 flex justify-center">
+                <div className="flex gap-2 rounded-full bg-white/70 px-3 py-2 shadow-sm">
                   {heroSlides.map((slide, index) => (
                     <button
                       key={slide.title}
                       type="button"
                       onClick={() => setActiveSlide(index)}
                       className={`h-2.5 rounded-full transition-all ${
-                        index === activeSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/55'
+                        index === activeSlide ? 'w-8 bg-leaf-600' : 'w-2.5 bg-soil-300'
                       }`}
                       aria-label={`Show ${slide.title}`}
                     />
@@ -283,25 +276,15 @@ export default function Dashboard() {
                   }`}
                 />
               ))}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#0c3b15]/70 via-[#0c3b15]/35 to-black/55" />
-              <div className="absolute inset-x-0 bottom-0 p-8 text-white">
-                <p className="inline-flex rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white">
-                  {activeHero.badge}
-                </p>
-                <h2 className="mt-4 max-w-[560px] text-4xl font-bold leading-tight text-white">
-                  {activeHero.headline}
-                </h2>
-                <p className="mt-3 max-w-[560px] text-sm font-semibold leading-6 text-white/85">
-                  {activeHero.detail}
-                </p>
-                <div className="mt-6 flex items-center gap-2">
+              <div className="absolute inset-x-0 bottom-4 flex justify-center">
+                <div className="flex items-center gap-2 rounded-full bg-white/70 px-3 py-2 shadow-sm">
                   {heroSlides.map((slide, index) => (
                     <button
                       key={slide.title}
                       type="button"
                       onClick={() => setActiveSlide(index)}
                       className={`h-2.5 rounded-full transition-all ${
-                        index === activeSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/55'
+                        index === activeSlide ? 'w-8 bg-leaf-600' : 'w-2.5 bg-soil-300'
                       }`}
                       aria-label={`Show ${slide.title}`}
                     />
@@ -366,7 +349,6 @@ export default function Dashboard() {
                     <ProductGrid
                       products={searchResults}
                       onAddToCart={handleAddToCart}
-                      onViewDetails={setSelectedProduct}
                     />
                   ) : (
                     <EmptyState message="No products matched your search." />
@@ -375,14 +357,25 @@ export default function Dashboard() {
               )}
 
               <section id="categories" className="mb-10 scroll-mt-36">
-                <SectionTitle
-                  title="Shop by Category"
-                  detail="Choose a farm category and browse matching products."
-                />
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                  {categories.map((category) => (
-                    <CategoryCard key={category.id} category={category} />
-                  ))}
+                <div className="rounded-[2rem] bg-[#eef7ed] px-4 py-7 shadow-[0_28px_80px_-54px_rgba(10,40,18,0.55)] sm:px-6 lg:px-8">
+                  <div className="mb-6 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.24em] text-soil-500">
+                        Farm Essentials
+                      </p>
+                      <h2 className="mt-2 whitespace-nowrap font-display text-2xl font-semibold text-soil-700 sm:mt-3 sm:text-3xl">
+                        Shop by Category
+                      </h2>
+                    </div>
+                    <span className="rounded-full bg-white/70 px-4 py-2 text-sm font-bold text-soil-600 shadow-sm">
+                      {displayCategories.length} categories
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+                    {displayCategories.map((category) => (
+                      <CategoryCard key={category.id} category={category} />
+                    ))}
+                  </div>
                 </div>
               </section>
 
@@ -391,7 +384,6 @@ export default function Dashboard() {
                 <ProductGrid
                   products={featuredProducts}
                   onAddToCart={handleAddToCart}
-                  onViewDetails={setSelectedProduct}
                   scrollOnMobile
                 />
               </section>
@@ -401,7 +393,6 @@ export default function Dashboard() {
                 <ProductGrid
                   products={popularProducts}
                   onAddToCart={handleAddToCart}
-                  onViewDetails={setSelectedProduct}
                   scrollOnMobile
                   showPopularBadge={true}
                 />
@@ -413,11 +404,6 @@ export default function Dashboard() {
 
       <SiteFooter />
 
-      <ProductDetailsModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-      />
       <CustomerProfilePanel
         customer={customer}
         open={profileOpen}
@@ -446,7 +432,7 @@ function ProductGrid({ products, onAddToCart, onViewDetails, scrollOnMobile = fa
     return (
       <div className="flex snap-x gap-3 overflow-x-auto px-2 pb-3 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
         {products.map((product) => (
-          <div key={product.id} className="w-[66vw] max-w-[260px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+          <div key={product.id} className="h-full w-[66vw] max-w-[260px] shrink-0 snap-start sm:w-auto sm:max-w-none">
             <ProductCard
               product={product}
               onAddToCart={onAddToCart}

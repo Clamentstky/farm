@@ -25,7 +25,8 @@ apiClient.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('access_token')
       localStorage.removeItem('customer')
-      if (window.location.pathname !== '/login') {
+      const publicAuthPages = ['/login', '/register', '/forgot-password']
+      if (!publicAuthPages.includes(window.location.pathname)) {
         window.location.href = '/login'
       }
     }
@@ -37,6 +38,7 @@ export default apiClient
 
 // Extracts a readable error message from FastAPI's error response shapes
 export function extractErrorMessage(error) {
+  if (error?.message && !error?.response) return error.message
   const data = error?.response?.data
   if (!data) return 'Something went wrong. Please try again.'
   if (typeof data.detail === 'string') return data.detail

@@ -12,6 +12,7 @@ class Product(Base):
     product_name = Column(String(160), nullable=False, index=True)
     description = Column(Text, nullable=False)
     product_image = Column(String(500), nullable=False)
+    images = Column(Text, nullable=True)
     price = Column(DECIMAL(10, 2), nullable=False)
     stock = Column(Integer, default=0, nullable=False)
     unit = Column(String(30), nullable=False)

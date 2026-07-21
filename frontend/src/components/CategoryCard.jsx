@@ -1,27 +1,32 @@
 import { Link } from 'react-router-dom'
-import { categoryImage } from '../data/brand'
+import { FALLBACK_IMAGE, categoryImage } from '../data/brand'
 
 export default function CategoryCard({ category }) {
   return (
     <Link
       to={`/category/${category.id}`}
-      className="group overflow-hidden rounded-lg border border-soil-100 bg-white shadow-sm shadow-soil-200/50 transition hover:-translate-y-0.5 hover:border-leaf-400 hover:shadow-md"
+      className="group overflow-hidden rounded-[1.4rem] border border-white/80 bg-white/90 p-3 shadow-[0_20px_48px_-34px_rgba(10,40,18,0.45)] transition hover:-translate-y-1 hover:shadow-[0_24px_60px_-34px_rgba(10,40,18,0.55)]"
     >
-      <div className="aspect-[5/3] overflow-hidden bg-soil-100">
+      <div className="aspect-[4/3] overflow-hidden rounded-[1rem] bg-[#e8efe5]">
         <img
           src={categoryImage(category)}
           alt={category.category_name}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover object-center transition duration-300 group-hover:scale-105"
           loading="lazy"
+          onError={(event) => {
+            event.currentTarget.src = FALLBACK_IMAGE
+          }}
         />
       </div>
-      <div className="p-3">
-        <h3 className="line-clamp-2 min-h-[36px] text-sm font-bold leading-snug text-soil-700">
-          {category.category_name}
-        </h3>
-        <p className="mt-2 text-xs font-semibold text-leaf-600">
-          {category.product_count} products
-        </p>
+      <div className="px-1 pb-1 pt-4">
+        <div className="min-w-0">
+          <h3 className="min-h-[2.5rem] text-base font-bold leading-snug text-soil-700">
+            {category.category_name}
+          </h3>
+          <p className="mt-2 text-sm font-semibold text-soil-500">
+            {category.product_count} products
+          </p>
+        </div>
       </div>
     </Link>
   )

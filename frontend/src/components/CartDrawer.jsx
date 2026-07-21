@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom'
 import { productImage } from '../data/brand'
 
 export default function CartDrawer({ items, open, onClose }) {
+  const navigate = useNavigate()
   if (!open) return null
 
   const cartCount = items.reduce((total, item) => total + item.quantity, 0)
@@ -50,6 +52,9 @@ export default function CartDrawer({ items, open, onClose }) {
                     src={productImage(item)}
                     alt={item.product_name}
                     className="h-20 w-full rounded-md object-cover"
+                    onError={(event) => {
+                      event.currentTarget.src = productImage(item)
+                    }}
                   />
                   <div className="min-w-0 py-1">
                     <p className="truncate text-sm font-bold text-soil-700">
@@ -90,6 +95,10 @@ export default function CartDrawer({ items, open, onClose }) {
           <button
             type="button"
             disabled={!items.length}
+            onClick={() => {
+              onClose()
+              navigate('/checkout/address')
+            }}
             className="mt-4 w-full rounded-lg bg-leaf-600 px-4 py-3 text-sm font-bold text-white disabled:bg-soil-200 disabled:text-soil-500"
           >
             Checkout

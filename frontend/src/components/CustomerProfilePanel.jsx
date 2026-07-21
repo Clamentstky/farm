@@ -50,7 +50,7 @@ export default function CustomerProfilePanel({ customer, open, onClose, onLogout
         <button
           type="button"
           onClick={onLogout}
-          className="mt-3 w-full rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 sm:mt-4 sm:py-3"
+          className="mt-3 w-full rounded-2xl bg-leaf-600 px-4 py-2.5 text-sm font-bold !text-white shadow-sm transition hover:bg-leaf-700 sm:mt-4 sm:py-3"
         >
           Logout
         </button>

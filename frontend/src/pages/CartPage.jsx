@@ -1,19 +1,47 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BrandIcon from '../components/BrandIcon'
+import ErrorState from '../components/ErrorState'
+import LoadingState from '../components/LoadingState'
 import SiteFooter from '../components/SiteFooter'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { BRAND_NAME, BRAND_TAGLINE } from '../data/brand'
 import { productImage } from '../data/brand'
+import { extractErrorMessage } from '../api/client'
 
 export default function CartPage() {
   const navigate = useNavigate()
   const { logout } = useAuth()
-  const { cartItems, cartCount, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart()
+  const {
+    cartItems,
+    cartCount,
+    cartTotal,
+    loading,
+    error,
+    refreshCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+  } = useCart()
+  const [notice, setNotice] = useState('')
+  const deliveryCharge = cartTotal > 0 && cartTotal < 500 ? 40 : 0
+  const grandTotal = cartTotal + deliveryCharge
 
   const handleLogout = async () => {
     await logout()
     navigate('/login', { replace: true })
+  }
+
+  const handleAction = async (action, successMessage) => {
+    try {
+      await action()
+      setNotice(successMessage)
+      window.setTimeout(() => setNotice(''), 1800)
+    } catch (err) {
+      setNotice(extractErrorMessage(err))
+      window.setTimeout(() => setNotice(''), 2200)
+    }
   }
 
   return (
@@ -50,6 +78,12 @@ export default function CartPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {notice && (
+          <div className="fixed right-4 top-24 z-40 rounded-lg bg-soil-700 px-4 py-3 text-sm font-bold text-white shadow-lg">
+            {notice}
+          </div>
+        )}
+
         <div className="mb-5 flex items-end justify-between gap-3">
           <div>
             <h2 className="font-display text-3xl font-semibold text-soil-700">My Cart</h2>
@@ -60,7 +94,7 @@ export default function CartPage() {
           {cartItems.length > 0 && (
             <button
               type="button"
-              onClick={clearCart}
+              onClick={() => handleAction(clearCart, 'Cart cleared')}
               className="rounded-lg border border-soil-200 bg-white px-4 py-2 text-sm font-bold text-soil-600"
             >
               Clear
@@ -68,7 +102,11 @@ export default function CartPage() {
           )}
         </div>
 
-        {cartItems.length === 0 ? (
+        {loading ? (
+          <LoadingState message="Loading your cart..." />
+        ) : error ? (
+          <ErrorState message={error} onRetry={refreshCart} />
+        ) : cartItems.length === 0 ? (
           <div className="rounded-lg border border-soil-100 bg-white p-8 text-center">
             <p className="text-sm font-semibold text-soil-500">Your cart is empty.</p>
             <Link
@@ -90,6 +128,9 @@ export default function CartPage() {
                     src={productImage(item)}
                     alt={item.product_name}
                     className="h-24 w-full rounded-md object-cover sm:h-28"
+                    onError={(event) => {
+                      event.currentTarget.src = productImage(item)
+                    }}
                   />
                   <div className="min-w-0">
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf-600">
@@ -103,7 +144,9 @@ export default function CartPage() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() =>
+                        handleAction(() => removeFromCart(item.id), `${item.product_name} removed`)
+                      }
                       className="mt-2 text-sm font-bold text-clay-600"
                     >
                       Remove
@@ -113,7 +156,12 @@ export default function CartPage() {
                     <div className="flex items-center overflow-hidden rounded-lg border border-soil-200 bg-white">
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          handleAction(
+                            () => updateQuantity(item.id, item.quantity - 1),
+                            'Quantity updated'
+                          )
+                        }
                         className="h-9 w-9 text-lg font-bold text-soil-700"
                       >
                         -
@@ -121,7 +169,13 @@ export default function CartPage() {
                       <span className="min-w-10 px-3 text-center text-sm font-bold">{item.quantity}</span>
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          handleAction(
+                            () => updateQuantity(item.id, item.quantity + 1),
+                            'Quantity updated'
+                          )
+                        }
+                        disabled={item.quantity >= item.stock}
                         className="h-9 w-9 text-lg font-bold text-soil-700"
                       >
                         +
@@ -139,13 +193,36 @@ export default function CartPage() {
               <h3 className="font-display text-xl font-semibold text-soil-700">Order Summary</h3>
               <div className="mt-4 grid gap-3 text-sm font-bold text-soil-600">
                 <div className="flex justify-between">
-                  <span>Items</span>
+                  <span>Total Items</span>
                   <span>{cartCount}</span>
                 </div>
-                <div className="flex justify-between border-t border-soil-100 pt-3 text-base text-soil-700">
-                  <span>Total</span>
+                <div className="flex justify-between">
+                  <span>Total Amount</span>
                   <span>INR {cartTotal.toFixed(2)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span>Delivery Charge</span>
+                  <span>{deliveryCharge ? `INR ${deliveryCharge.toFixed(2)}` : 'Free'}</span>
+                </div>
+                <div className="flex justify-between border-t border-soil-100 pt-3 text-base text-soil-700">
+                  <span>Grand Total</span>
+                  <span>INR {grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-3">
+                <Link
+                  to="/customer/dashboard"
+                  className="rounded-lg border border-soil-200 bg-white px-4 py-3 text-center text-sm font-bold text-soil-700"
+                >
+                  Continue Shopping
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => navigate('/checkout/address')}
+                  className="rounded-lg bg-leaf-600 px-4 py-3 text-sm font-bold text-white"
+                >
+                  Proceed to Checkout
+                </button>
               </div>
             </aside>
           </div>

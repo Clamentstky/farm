@@ -5,14 +5,13 @@ import CategoryCard from '../components/CategoryCard'
 import ProductCard from '../components/ProductCard'
 import LoadingState from '../components/LoadingState'
 import ErrorState from '../components/ErrorState'
-import ProductDetailsModal from '../components/ProductDetailsModal'
 import SiteFooter from '../components/SiteFooter'
 import CustomerProfilePanel from '../components/CustomerProfilePanel'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { extractErrorMessage } from '../api/client'
 import { getCategories, getProductsByCategory } from '../api/catalog'
-import { BRAND_NAME, BRAND_TAGLINE, categoryImage } from '../data/brand'
+import { BRAND_NAME, BRAND_TAGLINE, orderedCategories } from '../data/brand'
 
 export default function CategoryProducts() {
   const { id } = useParams()
@@ -24,7 +23,6 @@ export default function CategoryProducts() {
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedProduct, setSelectedProduct] = useState(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const [notice, setNotice] = useState('')
 
@@ -63,16 +61,22 @@ export default function CategoryProducts() {
     navigate('/login', { replace: true })
   }
 
-  const handleAddToCart = (product) => {
-    addToCart(product)
-    setNotice(`${product.product_name} added to cart`)
-    window.setTimeout(() => setNotice(''), 1800)
+  const handleAddToCart = async (product, quantity = 1) => {
+    try {
+      await addToCart(product, quantity)
+      setNotice(`${product.product_name} added to cart`)
+      window.setTimeout(() => setNotice(''), 1800)
+    } catch (err) {
+      setNotice(extractErrorMessage(err))
+      window.setTimeout(() => setNotice(''), 2200)
+    }
   }
   const avatarLetter = customer?.full_name?.charAt(0)?.toUpperCase() || BRAND_NAME.charAt(0)
+  const displayCategories = orderedCategories(categories)
 
   return (
-    <div className="min-h-screen bg-soil-50 text-soil-700">
-      <header className="sticky top-0 z-30 border-b border-soil-100 bg-white/95 shadow-sm shadow-soil-100/70 backdrop-blur">
+    <div className="min-h-screen bg-[#eef7ed] text-soil-700">
+      <header className="z-30 border-b border-white/70 bg-white/90 shadow-sm shadow-soil-100/70 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8 lg:py-4">
           <div className="flex items-center justify-between gap-3">
             <Link to="/customer/dashboard" className="flex min-w-0 items-center gap-3">
@@ -101,7 +105,7 @@ export default function CategoryProducts() {
               </button>
             </div>
           </div>
-          <div className="grid w-full grid-cols-3 gap-2 rounded-xl bg-soil-50 p-1 text-center text-sm font-bold text-soil-600">
+          <div className="grid w-full grid-cols-3 gap-2 rounded-2xl bg-[#f6faf4] p-1 text-center text-sm font-bold text-soil-600">
             <Link to="/customer/dashboard" className="rounded-lg px-2 py-2 transition hover:bg-white hover:text-leaf-700">
               Home
             </Link>
@@ -149,48 +153,28 @@ export default function CategoryProducts() {
           <ErrorState message={error} onRetry={loadCategory} />
         ) : (
           <>
-            <section className="mb-8 overflow-hidden rounded-lg border border-soil-100 bg-white shadow-sm shadow-soil-100">
-              <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
-                <img
-                  src={categoryImage(selectedCategory)}
-                  alt={selectedCategory?.category_name || 'Selected category'}
-                  className="h-44 w-full object-cover sm:h-56 lg:h-72"
-                />
-                <div className="flex flex-col justify-center p-5 sm:p-7">
-                  <p className="text-sm font-bold uppercase tracking-[0.2em] text-leaf-600">
-                    Category products
+            <section id="products" className="mb-12 scroll-mt-36">
+              <div className="mb-6 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-soil-500">
+                    Fresh Picks
                   </p>
-                  <h2 className="mt-2 font-display text-3xl font-semibold text-soil-700 sm:text-4xl">
-                    {selectedCategory?.category_name || 'Products'}
+                  <h2 className="mt-2 font-display text-3xl font-semibold text-soil-700">
+                    {selectedCategory?.category_name || 'Product List'}
                   </h2>
-                  <p className="mt-3 max-w-2xl leading-7 text-soil-600">
-                    Browse all available products in this category with price, unit and live stock details.
-                  </p>
-                  <p className="mt-4 text-sm font-bold text-leaf-700">
-                    {filteredProducts.length} products available
-                  </p>
                 </div>
-              </div>
-            </section>
-
-            <section id="products" className="mb-10 scroll-mt-36">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="font-display text-2xl font-semibold text-soil-700">
-                  Product List
-                </h2>
-                <span className="text-sm font-bold text-leaf-600">
-                  {searchTerm ? 'Filtered' : 'All items'}
+                <span className="rounded-full bg-white/70 px-4 py-2 text-sm font-bold text-soil-600">
+                  {filteredProducts.length} available
                 </span>
               </div>
 
               {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredProducts.map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
                       onAddToCart={handleAddToCart}
-                      onViewDetails={setSelectedProduct}
                     />
                   ))}
                 </div>
@@ -201,14 +185,19 @@ export default function CategoryProducts() {
               )}
             </section>
 
-            <section id="browse-categories" className="scroll-mt-40">
-              <div className="mb-4">
-                <h2 className="font-display text-2xl font-semibold text-soil-700">
-                  Browse Other Categories
-                </h2>
+            <section id="browse-categories" className="scroll-mt-40 rounded-[2rem] bg-white/60 px-4 py-7 sm:px-6">
+              <div className="mb-6 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-soil-500">
+                    More categories
+                  </p>
+                  <h2 className="mt-2 font-display text-2xl font-semibold text-soil-700">
+                    Browse Other Categories
+                  </h2>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {categories.map((category) => (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+                {displayCategories.map((category) => (
                   <CategoryCard key={category.id} category={category} />
                 ))}
               </div>
@@ -219,11 +208,6 @@ export default function CategoryProducts() {
 
       <SiteFooter compact />
 
-      <ProductDetailsModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-      />
       <CustomerProfilePanel
         customer={customer}
         open={profileOpen}

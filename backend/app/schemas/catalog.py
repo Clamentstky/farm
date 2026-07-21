@@ -23,6 +23,9 @@ class ProductOut(BaseModel):
     product_name: str
     description: str
     product_image: str
+    images: list[str] = []
+    freshness_info: str
+    delivery_availability: str
     price: Decimal
     stock: int
     unit: str

@@ -11,6 +11,15 @@ export const getProducts = (search = '') =>
 export const getProductsByCategory = (categoryId) =>
   apiClient.get(`/api/categories/${categoryId}/products`).then((res) => res.data)
 
+export const getProductDetails = (productId) =>
+  apiClient.get(`/api/products/${productId}`).then((res) => res.data)
+
+export const getRelatedProducts = (productId) =>
+  apiClient.get(`/api/products/${productId}/related`).then((res) => res.data)
+
+export const getSimilarProducts = (productId) =>
+  apiClient.get(`/api/products/${productId}/similar`).then((res) => res.data)
+
 export const getFeaturedProducts = () =>
   apiClient.get('/api/products/featured').then((res) => res.data)
 
