@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
@@ -8,7 +6,7 @@ from app.db.session import get_db
 from app.models.cart import Cart
 from app.models.customer import Customer
 from app.models.product import Product
-from app.routers.catalog import product_images
+from app.routers.catalog import product_images, sale_price, sale_stock, sale_unit
 from app.schemas.cart import CartAddIn, CartItemOut, CartUpdateIn
 
 router = APIRouter(prefix="/api/cart", tags=["Cart"])
@@ -16,6 +14,7 @@ router = APIRouter(prefix="/api/cart", tags=["Cart"])
 
 def serialize_cart_item(cart_item: Cart) -> CartItemOut:
     product = cart_item.product
+    price = sale_price(product)
     return CartItemOut(
         id=cart_item.id,
         customer_id=cart_item.customer_id,
@@ -26,11 +25,11 @@ def serialize_cart_item(cart_item: Cart) -> CartItemOut:
         description=product.description,
         product_image=product.product_image,
         images=product_images(product),
-        price=product.price,
-        stock=product.stock,
-        unit=product.unit,
+        price=price,
+        stock=sale_stock(product),
+        unit=sale_unit(product),
         quantity=cart_item.quantity,
-        subtotal=Decimal(product.price) * cart_item.quantity,
+        subtotal=price * cart_item.quantity,
         created_at=cart_item.created_at,
     )
 
@@ -70,10 +69,12 @@ def add_to_cart(
         .first()
     )
     next_quantity = payload.quantity + (existing.quantity if existing else 0)
-    if next_quantity > product.stock:
+    available_stock = sale_stock(product)
+    available_unit = sale_unit(product)
+    if next_quantity > available_stock:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Only {product.stock} {product.unit} available",
+            detail=f"Only {available_stock} {available_unit} available",
         )
 
     if existing:
@@ -103,10 +104,12 @@ def update_cart_item(
     cart_item = customer_cart_query(db, customer).filter(Cart.id == cart_item_id).first()
     if not cart_item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart item not found")
-    if payload.quantity > cart_item.product.stock:
+    available_stock = sale_stock(cart_item.product)
+    available_unit = sale_unit(cart_item.product)
+    if payload.quantity > available_stock:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Only {cart_item.product.stock} {cart_item.product.unit} available",
+            detail=f"Only {available_stock} {available_unit} available",
         )
 
     cart_item.quantity = payload.quantity

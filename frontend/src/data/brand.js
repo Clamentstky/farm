@@ -80,11 +80,66 @@ const generatedImageNameByProduct = {
   'Fresh Cow Milk': 'fresh-cow-milk',
 }
 
+const explicitProductImages = {
+  'Goat Milk': [
+    '/product-images/goat1.jpg',
+    '/product-images/goat2.jpg',
+    '/product-images/goat3.jpg',
+  ],
+  'Goat Meat Curry Cut': [
+    '/product-images/goat-meat.jpg',
+    '/product-images/mutton1.jpg',
+    '/product-images/mutton2.png',
+  ],
+  'Buffalo Curd': [
+    '/product-images/curd1.jpg',
+    '/product-images/curd2.jpg',
+    '/product-images/curd3.jpg',
+  ],
+  'Country Eggs': [
+    '/product-images/eggs1.jpg',
+    '/product-images/eggs2.jpg',
+    '/product-images/eggs3.jpg',
+  ],
+  'White Eggs': [
+    '/product-images/white%20egg1.jpg',
+    '/product-images/white%20egg2.jpg',
+    '/product-images/white%20egg3.jpg',
+  ],
+  'Rohu Fish': [
+    '/product-images/rohu%20fish1.jpg',
+    '/product-images/rohu%20fish2.png',
+    '/product-images/rohu%20fish3.jpg',
+  ],
+  'Fresh Water Prawn': [
+    '/product-images/prawn1.jpg',
+    '/product-images/prawn2.jpg',
+    '/product-images/prawn3.jpg',
+  ],
+  'Seer Fish': [
+    '/product-images/seer1.jpg',
+    '/product-images/seer2.jpg',
+    '/product-images/seer3.jpg',
+  ],
+  Sardine: [
+    '/product-images/sardine1.jpg',
+    '/product-images/sardine2.jpg',
+    '/product-images/sardine3.jpg',
+  ],
+  'Pomfret Fish': [
+    '/product-images/Pomfret%20Fish1.jpg',
+    '/product-images/Pomfret%20Fish2.jpg',
+    '/product-images/Pomfret%20Fish3.jpg',
+  ],
+}
+
 function productImagePath(imageName) {
   return `/product-images/${encodeURIComponent(imageName)}.jpg`
 }
 
 function generatedProductImages(productName) {
+  if (explicitProductImages[productName]) return explicitProductImages[productName]
+
   if (productName === 'Live Mud Crab') {
     return [1, 2, 3].map((imageNumber) => {
       const imageName = imageNumber === 1 ? productName.toLowerCase() : productName

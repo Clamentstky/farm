@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { productImage } from '../data/brand'
+import { formatStockLabel } from '../utils/productUnits'
 
 export default function ProductCard({ product, onAddToCart, onViewDetails, showPopularBadge = false }) {
   const navigate = useNavigate()
@@ -56,7 +57,7 @@ export default function ProductCard({ product, onAddToCart, onViewDetails, showP
             <span className="pb-0.5 text-sm font-medium text-soil-700">/ {product.unit}</span>
           </div>
           <p className={`mt-2 min-h-4 text-[11px] font-bold ${inStock ? 'text-soil-700' : 'text-clay-600'}`}>
-            {inStock ? `${product.stock} ${product.unit} in stock` : 'Out of stock'}
+            {formatStockLabel(product)}
           </p>
         </div>
 

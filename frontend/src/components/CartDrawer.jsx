@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { productImage } from '../data/brand'
+import { formatQuantityLabel } from '../utils/productUnits'
 
 export default function CartDrawer({ items, open, onClose }) {
   const navigate = useNavigate()
@@ -65,7 +66,7 @@ export default function CartDrawer({ items, open, onClose }) {
                     </p>
                     <div className="mt-2 flex items-center justify-between gap-3 text-sm">
                       <span className="font-semibold text-soil-600">
-                        Qty {item.quantity}
+                        Qty {item.quantity} ({formatQuantityLabel(item, item.quantity)})
                       </span>
                       <span className="font-bold text-soil-700">
                         INR {(Number(item.price) * item.quantity).toFixed(2)}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { productImage } from '../data/brand'
+import { formatStockLabel } from '../utils/productUnits'
 
 export default function ProductDetailsModal({ product, onClose, onAddToCart }) {
   const [quantity, setQuantity] = useState(1)
@@ -101,7 +102,7 @@ export default function ProductDetailsModal({ product, onClose, onAddToCart }) {
               {/* Availability */}
               <div className="mt-4 rounded-lg bg-soil-50 p-3">
                 <p className="text-sm font-semibold text-soil-600">
-                  Availability: <span className="font-bold text-leaf-700">{product.stock} {product.unit}(s) available</span>
+                  Availability: <span className="font-bold text-leaf-700">{formatStockLabel(product)}</span>
                 </p>
               </div>
             </div>

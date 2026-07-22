@@ -100,7 +100,7 @@ export default function SiteFooter({ compact = false }) {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 text-xs font-semibold text-white/60 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col items-center gap-2 border-t border-white/10 pt-5 text-center text-xs font-semibold text-white/60 sm:flex-row sm:justify-between sm:text-left">
             <p>Copyright 2026 by FreshNest Farm Market</p>
             <p>Fresh from local farms, delivered with care.</p>
           </div>

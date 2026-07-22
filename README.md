@@ -11,8 +11,8 @@ A modern, full-stack e-commerce platform connecting village farms to customers. 
 FreshNest is a comprehensive farm-to-table delivery platform that enables customers to browse, search, and purchase fresh products directly from village farms. The platform features:
 
 - **Customer Authentication**: Registration, password login, OTP verification, and forgot password functionality
-- **Product Catalog**: Browse 10+ product categories with 16+ fresh farm products
-- **Smart Search**: Full-text search across products and categories
+- **Product Catalog**: Browse 10 product categories with 30+ fresh farm products
+- **Smart Search**: Search across products and categories
 - **Shopping Cart**: Persistent cart management with quantity controls
 - **Product Details**: Enhanced modal with detailed product information, availability, and purchase options
 - **Responsive Design**: Mobile-first, fully responsive UI using Tailwind CSS
@@ -42,7 +42,7 @@ FreshNest is a comprehensive farm-to-table delivery platform that enables custom
 ### Database
 - **DBMS**: MySQL 8.0+
 - **Character Set**: UTF-8 MB4 (Unicode support)
-- **Tables**: 4 main tables (customers, otps, categories, products)
+- **Tables**: 5 main tables (customers, otps, categories, products, cart)
 
 ---
 
@@ -54,12 +54,12 @@ FreshNest is a comprehensive farm-to-table delivery platform that enables custom
 - ✅ OTP-based authentication (5-minute expiry)
 - ✅ Forgot password & password reset functionality
 - ✅ JWT Bearer token authentication
-- ✅ Protected routes with role-based access
+- ✅ Protected customer routes
 - ✅ Customer profile management and logout
 
 ### Product Catalog
 - ✅ 10 product categories with seed data
-- ✅ 16 farm products with images, descriptions, pricing
+- ✅ 30+ farm products with images, descriptions, pricing
 - ✅ Product availability and stock management
 - ✅ Category-based product filtering
 - ✅ Full-text search by product name and category
@@ -97,17 +97,30 @@ FreshNest is a comprehensive farm-to-table delivery platform that enables custom
 #### Authentication (`/api/auth`)
 - `POST /register` - Customer registration
 - `POST /login/password` - Password-based login
-- `POST /login/otp` - OTP verification login
-- `POST /forgot-password` - Request password reset
+- `POST /otp/request` - Request OTP for login
+- `POST /otp/verify` - Verify OTP and login
+- `POST /forgot-password` - Request password reset OTP
 - `POST /reset-password` - Reset password with OTP
 - `GET /profile` - Get customer profile (protected)
 - `POST /logout` - Logout (protected)
+
+#### Cart (`/api/cart`)
+- `GET /cart` - List cart items for authenticated user
+- `POST /cart` - Add item to cart
+- `PUT /cart/{cart_item_id}` - Update cart item quantity
+- `DELETE /cart/{cart_item_id}` - Remove cart item
 
 #### Catalog (`/api`)
 - `GET /categories` - Fetch all categories with product counts
 - `GET /products` - Fetch products with optional search and pagination
   - Query params: `search` (string), `limit` (1-100, default 40)
   - Supports search by product name or category name
+- `GET /products/featured` - Fetch featured products
+- `GET /products/popular` - Fetch popular products
+- `GET /products/{product_id}` - Fetch product details
+- `GET /products/{product_id}/related` - Fetch related products
+- `GET /products/{product_id}/similar` - Fetch similar products
+- `GET /categories/{category_id}/products` - Fetch products by category
 
 ---
 

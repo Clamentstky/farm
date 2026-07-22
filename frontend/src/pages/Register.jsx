@@ -5,7 +5,6 @@ import PrimaryButton from '../components/PrimaryButton'
 import AlertBanner from '../components/AlertBanner'
 import { registerCustomer } from '../api/auth'
 import { extractErrorMessage } from '../api/client'
-import { useAuth } from '../context/AuthContext'
 import AuthLayout from '../components/AuthLayout'
 
 const initialForm = {
@@ -23,7 +22,6 @@ export default function Register() {
   const [formError, setFormError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -50,9 +48,11 @@ export default function Register() {
 
     setLoading(true)
     try {
-      const data = await registerCustomer(form)
-      login(data.access_token, data.customer)
-      navigate('/customer/dashboard', { replace: true })
+      await registerCustomer(form)
+      navigate('/registration-success', {
+        replace: true,
+        state: { mobileNumber: form.mobile_number },
+      })
     } catch (err) {
       setFormError(extractErrorMessage(err))
     } finally {

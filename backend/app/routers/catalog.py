@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_
@@ -42,6 +43,29 @@ def delivery_availability(product: Product) -> str:
     return "Delivery available in service areas within 24 hours."
 
 
+def sale_unit(product: Product) -> str:
+    unit = product.unit.lower()
+    if "litre" in unit:
+        return "500ml"
+    if "kg" in unit:
+        return "0.5kg"
+    return product.unit
+
+
+def sale_price(product: Product) -> Decimal:
+    unit = product.unit.lower()
+    if "litre" in unit or "kg" in unit:
+        return Decimal(product.price) / Decimal("2")
+    return Decimal(product.price)
+
+
+def sale_stock(product: Product) -> int:
+    unit = product.unit.lower()
+    if "litre" in unit or "kg" in unit:
+        return product.stock * 2
+    return product.stock
+
+
 def serialize_product(product: Product) -> ProductOut:
     return ProductOut(
         id=product.id,
@@ -53,9 +77,9 @@ def serialize_product(product: Product) -> ProductOut:
         images=product_images(product),
         freshness_info=freshness_info(product),
         delivery_availability=delivery_availability(product),
-        price=product.price,
-        stock=product.stock,
-        unit=product.unit,
+        price=sale_price(product),
+        stock=sale_stock(product),
+        unit=sale_unit(product),
         is_featured=product.is_featured,
         status=product.status,
     )

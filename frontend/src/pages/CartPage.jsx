@@ -10,6 +10,7 @@ import { useCart } from '../context/CartContext'
 import { BRAND_NAME, BRAND_TAGLINE } from '../data/brand'
 import { productImage } from '../data/brand'
 import { extractErrorMessage } from '../api/client'
+import { formatQuantityLabel } from '../utils/productUnits'
 
 export default function CartPage() {
   const navigate = useNavigate()
@@ -178,6 +179,7 @@ export default function CartPage() {
                       </button>
                     </div>
                     <p className="text-sm font-bold text-soil-700">
+                      {formatQuantityLabel(item, item.quantity)} |{' '}
                       INR {(Number(item.price) * item.quantity).toFixed(2)}
                     </p>
                   </div>

@@ -8,11 +8,12 @@ import { getProductDetails, getRelatedProducts, getSimilarProducts } from '../ap
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { productImage, productImages } from '../data/brand'
+import { formatQuantityLabel, formatStockLabel } from '../utils/productUnits'
 
 export default function ProductDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { addToCart } = useCart()
+  const { addToCart, cartCount } = useCart()
   const [product, setProduct] = useState(null)
   const [relatedProducts, setRelatedProducts] = useState([])
   const [similarProducts, setSimilarProducts] = useState([])
@@ -48,6 +49,7 @@ export default function ProductDetails() {
       setLoading(false)
     }
   }
+  
 
   useEffect(() => {
     loadProduct()
@@ -113,16 +115,33 @@ export default function ProductDetails() {
           <ErrorState message={error} onRetry={loadProduct} />
         ) : (
           <>
-            <div className="mb-6 flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 px-4 py-3 shadow-[0_16px_46px_-34px_rgba(10,40,18,0.55)] lg:mb-5">
-              <button
-                type="button"
-                onClick={() => navigate(product?.category_id ? `/category/${product.category_id}` : '/customer/dashboard')}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-soil-100 bg-white text-lg font-bold text-soil-700"
-                aria-label="Back to products"
-              >
-                {'<'}
-              </button>
-              <span className="text-sm font-bold text-soil-700">Product Details</span>
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-white/80 bg-white/75 px-3 py-3 shadow-[0_16px_46px_-34px_rgba(10,40,18,0.55)] sm:px-4 lg:mb-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate(product?.category_id ? `/category/${product.category_id}` : '/customer/dashboard')}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-soil-100 bg-white text-lg font-bold text-soil-700"
+                  aria-label="Back to products"
+                >
+                  {'<'}
+                </button>
+                <span className="truncate text-sm font-bold text-soil-700">Product Details</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/cart')}
+                  className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-600 text-white transition hover:bg-leaf-700"
+                  aria-label="Open cart"
+                >
+                  <CartIcon />
+                  {cartCount > 0 && (
+                    <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold leading-none text-[#4c9c18] shadow-sm">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
 
             <section className="rounded-[1.6rem] border border-white/80 bg-white/80 p-5 shadow-[0_28px_80px_-52px_rgba(10,40,18,0.65)] sm:p-6 lg:grid lg:grid-cols-[1.05fr_1fr] lg:gap-10 xl:p-7">
@@ -199,7 +218,7 @@ export default function ProductDetails() {
                   <span className="pb-1 text-xs font-bold text-soil-500">/ {product.unit}</span>
                 </div>
                 <p className="mt-2 text-xs font-bold text-soil-500">
-                  {product.stock} units available
+                  {formatStockLabel(product)}
                 </p>
 
                 <div className="mt-4 grid max-w-xs gap-3 lg:gap-2">
@@ -230,7 +249,7 @@ export default function ProductDetails() {
                     </button>
                     </div>
                     <span className="text-xs font-bold text-soil-500">
-                      {quantity} {product.unit}
+                      {formatQuantityLabel(product, quantity)}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -274,6 +293,26 @@ export default function ProductDetails() {
 
       <SiteFooter compact />
     </div>
+  )
+}
+
+function CartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+      <path
+        d="M5 6h16l-2 8H8L6 3H3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 20h.01M18 20h.01"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
   )
 }
 
@@ -360,7 +399,7 @@ function CompactProductCard({ product, onAddToCart }) {
             <span className="ml-1 text-xs font-bold text-soil-500">/ {product.unit}</span>
           </div>
           <span className="pb-1 text-[11px] font-bold text-soil-500">
-            {product.stock} available
+            {formatStockLabel(product)}
           </span>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3">
