@@ -62,37 +62,40 @@ export default function Register() {
 
   return (
     <AuthLayout
-      eyebrow="Create account"
-      title="Join the customer portal"
-      description="Register with your mobile number to get a unique Customer ID and unlock fresh daily deliveries."
+      eyebrow="Create Account"
+      title="Join GrameenFresh Market"
+      description="Register with your details to receive daily village farm deliveries."
     >
       <AlertBanner message={formError} />
 
-      <form onSubmit={handleSubmit} noValidate>
-        <FormInput
-          id="full_name"
-          name="full_name"
-          label="Full Name"
-          type="text"
-          placeholder="e.g. Ramesh Kumar"
-          value={form.full_name}
-          onChange={handleChange}
-          error={fieldErrors.full_name}
-          autoComplete="name"
-        />
-        <FormInput
-          id="mobile_number"
-          name="mobile_number"
-          label="Mobile Number"
-          type="tel"
-          inputMode="numeric"
-          placeholder="10-digit mobile number"
-          value={form.mobile_number}
-          onChange={handleChange}
-          error={fieldErrors.mobile_number}
-          maxLength={10}
-          autoComplete="tel"
-        />
+      <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+          <FormInput
+            id="full_name"
+            name="full_name"
+            label="Full Name"
+            type="text"
+            placeholder="e.g. Ramesh Kumar"
+            value={form.full_name}
+            onChange={handleChange}
+            error={fieldErrors.full_name}
+            autoComplete="name"
+          />
+          <FormInput
+            id="mobile_number"
+            name="mobile_number"
+            label="Mobile Number"
+            type="tel"
+            inputMode="numeric"
+            placeholder="10-digit number"
+            value={form.mobile_number}
+            onChange={handleChange}
+            error={fieldErrors.mobile_number}
+            maxLength={10}
+            autoComplete="tel"
+          />
+        </div>
+
         <FormInput
           id="email"
           name="email"
@@ -104,6 +107,7 @@ export default function Register() {
           error={fieldErrors.email}
           autoComplete="email"
         />
+
         <FormInput
           id="village"
           name="village"
@@ -114,40 +118,49 @@ export default function Register() {
           onChange={handleChange}
           error={fieldErrors.village}
         />
-        <FormInput
-          id="password"
-          name="password"
-          label="Password"
-          type="password"
-          placeholder="At least 6 characters"
-          value={form.password}
-          onChange={handleChange}
-          error={fieldErrors.password}
-          autoComplete="new-password"
-        />
-        <FormInput
-          id="confirm_password"
-          name="confirm_password"
-          label="Confirm Password"
-          type="password"
-          placeholder="Re-enter your password"
-          value={form.confirm_password}
-          onChange={handleChange}
-          error={fieldErrors.confirm_password}
-          autoComplete="new-password"
-        />
 
-        <PrimaryButton type="submit" loading={loading} className="mt-2">
-          Create account
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+          <FormInput
+            id="password"
+            name="password"
+            label="Password"
+            type="password"
+            placeholder="At least 6 chars"
+            value={form.password}
+            onChange={handleChange}
+            error={fieldErrors.password}
+            autoComplete="new-password"
+          />
+          <FormInput
+            id="confirm_password"
+            name="confirm_password"
+            label="Confirm Password"
+            type="password"
+            placeholder="Re-enter password"
+            value={form.confirm_password}
+            onChange={handleChange}
+            error={fieldErrors.confirm_password}
+            autoComplete="new-password"
+          />
+        </div>
+
+        <PrimaryButton type="submit" loading={loading} className="w-full min-h-[48px] text-base font-bold shadow-md mt-2">
+          Create Account →
         </PrimaryButton>
       </form>
 
-      <p className="mt-6 text-center text-sm text-soil-600">
-        Already have an account?{' '}
-        <Link to="/login" className="font-semibold text-leaf-600">
-          Log in
+      {/* Switch to Login link card */}
+      <div className="mt-6 rounded-2xl border border-soil-100 bg-soil-50/70 p-4 text-center">
+        <p className="text-xs font-semibold text-soil-600">
+          Already registered with GrameenFresh?
+        </p>
+        <Link
+          to="/login"
+          className="mt-1.5 inline-block font-bold text-[#118707] hover:underline text-sm"
+        >
+          Log in to your account →
         </Link>
-      </p>
+      </div>
     </AuthLayout>
   )
 }

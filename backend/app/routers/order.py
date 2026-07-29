@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
+from datetime import datetime
 
 from app.core.deps import get_current_customer
 from app.db.session import get_db
@@ -8,7 +9,7 @@ from app.models.address import CustomerAddress
 from app.models.cart import Cart
 from app.models.order import Order, OrderItem
 from app.models.product import Product
-from app.routers.catalog import sale_price, sale_stock
+from app.routers.catalog import sale_price, sale_stock, sale_unit
 from app.schemas.customer import MessageResponse
 from app.schemas.order import PlaceOrderIn, OrderOut
 
@@ -17,13 +18,26 @@ router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
 
 def generate_order_id(db: Session) -> str:
-    last_order = db.query(Order).order_by(Order.id.desc()).first()
+    date_str = datetime.now().strftime("%Y%m%d")
+    prefix = f"ORD-{date_str}-"
+    
+    last_order = (
+        db.query(Order)
+        .filter(Order.order_id.like(f"{prefix}%"))
+        .order_by(Order.id.desc())
+        .first()
+    )
+    
     if last_order:
-        last_num = int(last_order.order_id.replace("ORD", ""))
-        new_num = last_num + 1
+        try:
+            last_num = int(last_order.order_id.split("-")[-1])
+            new_num = last_num + 1
+        except ValueError:
+            new_num = 1
     else:
         new_num = 1
-    return f"ORD{new_num:05d}"
+        
+    return f"{prefix}{new_num:04d}"
 
 
 @router.post("", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
@@ -94,7 +108,7 @@ def place_order(
             product_name=product.product_name,
             quantity=cart_item.quantity,
             price=price,
-            unit=product.unit,
+            unit=sale_unit(product),
         )
         db.add(order_item)
 
@@ -110,7 +124,7 @@ def place_order(
     # Reload with items
     order = (
         db.query(Order)
-        .options(joinedload(Order.items))
+        .options(joinedload(Order.items).joinedload(OrderItem.product))
         .filter(Order.id == order.id)
         .first()
     )
@@ -124,7 +138,7 @@ def get_orders(
 ):
     orders = (
         db.query(Order)
-        .options(joinedload(Order.items))
+        .options(joinedload(Order.items).joinedload(OrderItem.product))
         .filter(Order.customer_id == customer.id)
         .order_by(Order.created_at.desc())
         .all()
@@ -138,7 +152,7 @@ def get_order(
     db: Session = Depends(get_db),
     customer: Customer = Depends(get_current_customer),
 ):
-    query = db.query(Order).options(joinedload(Order.items)).filter(Order.customer_id == customer.id)
+    query = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.product)).filter(Order.customer_id == customer.id)
     if order_id.isdigit():
         order = query.filter((Order.id == int(order_id)) | (Order.order_id == order_id)).first()
     else:

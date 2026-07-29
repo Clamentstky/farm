@@ -5,6 +5,15 @@ import SiteFooter from '../components/SiteFooter'
 import { useCart } from '../context/CartContext'
 import { BRAND_NAME, BRAND_TAGLINE } from '../data/brand'
 
+const TAMIL_NADU_DISTRICTS = [
+  'Ariyalur', 'Chengalpattu', 'Chennai', 'Coimbatore', 'Cuddalore', 'Dharmapuri', 'Dindigul',
+  'Erode', 'Kallakurichi', 'Kanchipuram', 'Kanyakumari', 'Karur', 'Krishnagiri', 'Madurai',
+  'Mayiladuthurai', 'Nagapattinam', 'Namakkal', 'Nilgiris', 'Perambalur', 'Pudukkottai',
+  'Ramanathapuram', 'Ranipet', 'Salem', 'Sivaganga', 'Tenkasi', 'Thanjavur', 'Theni',
+  'Thoothukudi', 'Tiruchirappalli', 'Tirunelveli', 'Tirupathur', 'Tiruppur', 'Tiruvallur',
+  'Tiruvannamalai', 'Tiruvarur', 'Vellore', 'Viluppuram', 'Virudhunagar'
+]
+
 export default function CheckoutAddress() {
   const navigate = useNavigate()
   const { cartItems, cartCount, cartTotal } = useCart()
@@ -22,7 +31,7 @@ export default function CheckoutAddress() {
     return <Navigate to="/cart" replace />
   }
 
-  const deliveryCharge = cartTotal > 0 && cartTotal < 500 ? 40 : 0
+  const deliveryCharge = cartTotal > 0 && cartTotal < 100 ? 40 : 0
   const grandTotal = cartTotal + deliveryCharge
 
   const handleChange = (event) => {
@@ -160,6 +169,26 @@ export default function CheckoutAddress() {
                     placeholder="City or Town"
                   />
                 </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-soil-500 mb-1">
+                    District *
+                  </label>
+                  <select
+                    required
+                    name="district"
+                    value={form.district}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-soil-200 bg-white px-3 py-2 text-xs font-semibold text-soil-800 outline-none focus:border-leaf-500 focus:ring-1 focus:ring-leaf-500"
+                  >
+                    <option value="" disabled>Select District</option>
+                    {TAMIL_NADU_DISTRICTS.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-soil-500 mb-1">
                     PIN Code *

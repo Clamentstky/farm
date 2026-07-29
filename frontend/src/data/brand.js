@@ -1,6 +1,6 @@
-export const BRAND_NAME = 'FreshNest'
-export const BRAND_TAGLINE = 'Farm Market'
-export const BRAND_FULL_NAME = `${BRAND_NAME} ${BRAND_TAGLINE}`
+export const BRAND_NAME = 'GrameenFresh'
+export const BRAND_TAGLINE = 'Authentic Village Farm Delivery'
+export const BRAND_FULL_NAME = `${BRAND_NAME} - ${BRAND_TAGLINE}`
 
 export const heroSlides = [
   {

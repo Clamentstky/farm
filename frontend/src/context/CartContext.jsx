@@ -70,7 +70,7 @@ export function CartProvider({ children }) {
   }
 
   const clearCart = async () => {
-    await Promise.all(cartItems.map((item) => removeCartItem(item.id)))
+    await Promise.all(cartItems.map((item) => removeCartItem(item.id).catch(() => {})))
     setCartItems([])
   }
 

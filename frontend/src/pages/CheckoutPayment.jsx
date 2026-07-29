@@ -17,7 +17,7 @@ export default function CheckoutPayment() {
     return <Navigate to="/checkout/address" replace />
   }
 
-  const deliveryCharge = cartTotal > 0 && cartTotal < 500 ? 40 : 0
+  const deliveryCharge = cartTotal > 0 && cartTotal < 100 ? 40 : 0
   const grandTotal = cartTotal + deliveryCharge
 
   const handleSubmit = async (event) => {

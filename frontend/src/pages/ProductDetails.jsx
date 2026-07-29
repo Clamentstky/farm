@@ -102,7 +102,7 @@ export default function ProductDetails() {
 
   return (
     <div className="min-h-screen bg-[#eef7ed] text-soil-700">
-      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-3xl px-4 py-5 sm:px-6 lg:max-w-[95vw] lg:px-8 xl:max-w-[1600px]">
         {notice && (
           <div className="fixed right-4 top-24 z-40 rounded-lg bg-soil-700 px-4 py-3 text-sm font-bold text-white shadow-lg">
             {notice}
@@ -119,9 +119,9 @@ export default function ProductDetails() {
               <div className="flex min-w-0 items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate(product?.category_id ? `/category/${product.category_id}` : '/customer/dashboard')}
+                  onClick={() => navigate(-1)}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-soil-100 bg-white text-lg font-bold text-soil-700"
-                  aria-label="Back to products"
+                  aria-label="Go back"
                 >
                   {'<'}
                 </button>

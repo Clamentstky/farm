@@ -151,7 +151,7 @@ def get_featured_products(db: Session = Depends(get_db)):
             Category.status == True,  # noqa: E712
         )
         .order_by(Product.id.asc())
-        .limit(12)
+        .limit(50)
         .all()
     )
     return [serialize_product(product) for product in products]
@@ -163,9 +163,13 @@ def get_popular_products(db: Session = Depends(get_db)):
         db.query(Product)
         .options(joinedload(Product.category))
         .join(Category)
-        .filter(Product.status == True, Category.status == True)  # noqa: E712
+        .filter(
+            Product.status == True,  # noqa: E712
+            Category.status == True,  # noqa: E712
+            Product.is_featured == False,  # noqa: E712
+        )
         .order_by(Product.stock.desc(), Product.id.asc())
-        .limit(12)
+        .limit(50)
         .all()
     )
     return [serialize_product(product) for product in products]

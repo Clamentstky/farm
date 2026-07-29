@@ -10,6 +10,7 @@ class OrderItemOut(BaseModel):
     quantity: int
     price: float
     unit: Optional[str] = None
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True

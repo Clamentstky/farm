@@ -49,17 +49,17 @@ export default function CheckoutSuccess() {
       {/* Top Header */}
       <header className="sticky top-0 z-30 border-b border-white/70 bg-white/95 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/customer/dashboard" className="flex items-center gap-3">
-            <BrandIcon className="h-10 w-10 sm:h-11 sm:w-11" />
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">{BRAND_NAME}</p>
-              <h1 className="font-display text-lg font-bold text-soil-800 sm:text-xl">{BRAND_TAGLINE}</h1>
+          <Link to="/customer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <BrandIcon className="h-8 w-8 sm:h-10 sm:w-10 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.18em] text-leaf-600 truncate">{BRAND_NAME}</p>
+              <h1 className="font-display text-xs sm:text-lg font-bold text-soil-800 truncate">{BRAND_TAGLINE}</h1>
             </div>
           </Link>
 
           <Link
             to="/customer/dashboard"
-            className="rounded-full border border-leaf-200 bg-leaf-50 px-4 py-2 text-xs font-bold text-leaf-700 transition hover:bg-leaf-100"
+            className="rounded-full border border-leaf-200 bg-leaf-50 px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-bold text-leaf-700 transition hover:bg-leaf-100 shrink-0"
           >
             Dashboard
           </Link>
@@ -83,7 +83,7 @@ export default function CheckoutSuccess() {
             Order Placed Successfully!
           </h2>
           <p className="mt-2 max-w-md text-xs font-medium text-soil-500 sm:text-sm leading-relaxed">
-            Thank you for shopping with FreshNest Farm Market! We have received your order and are preparing it fresh for delivery.
+            Thank you for shopping with GrameenFresh! We have received your order and are preparing it fresh for delivery.
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function CheckoutSuccess() {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-soil-200 text-soil-600 text-xs font-bold">
                 🚚
               </div>
-              <span className="text-[11px] font-medium text-soil-500">Out for Delivery</span>
+              <span className="text-[10px] sm:text-[11px] font-medium text-soil-500 leading-tight">Out for<br className="sm:hidden" /> Delivery</span>
             </div>
 
             <div className="flex flex-col items-center gap-1.5 opacity-50">
@@ -127,22 +127,22 @@ export default function CheckoutSuccess() {
         {/* Order Details Card */}
         <div className="mt-6 rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
           {/* Order ID & Copy Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-soil-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-soil-100 pb-4">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Order Reference</p>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="font-display text-xl font-bold text-soil-800">{orderId}</span>
+                <span className="font-display text-lg sm:text-xl font-bold text-soil-800">{orderId}</span>
                 <button
                   type="button"
                   onClick={handleCopyOrderId}
-                  className="rounded-lg bg-soil-100 px-2 py-0.5 text-[11px] font-bold text-soil-600 hover:bg-soil-200"
+                  className="rounded-lg bg-soil-100 px-2 py-0.5 text-[11px] font-bold text-soil-600 hover:bg-soil-200 shrink-0"
                 >
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
               </div>
             </div>
 
-            <div className="text-right">
+            <div className="sm:text-right">
               <p className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Placed On</p>
               <p className="text-xs font-bold text-soil-700 mt-0.5">{formatDate(orderDate)}</p>
             </div>

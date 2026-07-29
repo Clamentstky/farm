@@ -94,30 +94,42 @@ export default function CustomerProfilePanel({ customer, open, onClose, onLogout
         className="w-[92vw] max-w-sm rounded-3xl bg-white/95 p-4 shadow-2xl backdrop-blur-md sm:max-w-md sm:p-5"
         onClick={(event) => event.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#fff3bd] text-xl font-bold text-[#118707] sm:h-14 sm:w-14 sm:text-2xl">
+        {/* Header - View Mode vs Edit Mode */}
+        {!isEditing ? (
+          <div className="relative flex flex-col items-center pb-2 pt-2">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#3d7042] text-2xl font-bold text-white shadow-sm">
               {initial}
             </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-leaf-600 sm:text-xs">
-                Customer Profile
-              </p>
-              <h2 className="mt-0.5 truncate font-display text-lg font-semibold text-soil-700 sm:text-2xl">
-                {customer?.full_name || 'Customer'}
-              </h2>
-            </div>
+            <h2 className="mt-3 font-display text-lg font-bold text-soil-800">
+              {customer?.full_name || 'Customer'}
+            </h2>
+            <p className="text-[11px] font-medium text-soil-500">
+              Customer Account
+            </p>
+            
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full border border-soil-100 bg-white text-soil-500 shadow-sm transition hover:bg-soil-50"
+              aria-label="Edit Profile"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+              </svg>
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-soil-100 bg-white/80 text-base font-bold text-soil-700 hover:bg-soil-100 sm:h-9 sm:w-9"
-            aria-label="Close profile details"
-          >
-            ✕
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between pb-2">
+            <h2 className="font-display text-lg font-bold text-soil-800">Edit Profile</h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-soil-100 bg-white text-soil-500 hover:bg-soil-50"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Feedback alerts */}
         {error && (
@@ -142,9 +154,8 @@ export default function CustomerProfilePanel({ customer, open, onClose, onLogout
                 type="text"
                 name="full_name"
                 value={formData.full_name}
-                onChange={handleChange}
-                required
-                className="w-full rounded-xl border border-soil-200 bg-white px-3 py-2 text-sm font-semibold text-soil-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+                readOnly
+                className="w-full rounded-xl border border-soil-200 bg-soil-50 px-3 py-2 text-sm font-semibold text-soil-500 cursor-not-allowed focus:outline-none"
               />
             </div>
 
@@ -157,10 +168,8 @@ export default function CustomerProfilePanel({ customer, open, onClose, onLogout
                   type="tel"
                   name="mobile_number"
                   value={formData.mobile_number}
-                  onChange={handleChange}
-                  required
-                  maxLength={10}
-                  className="w-full rounded-xl border border-soil-200 bg-white px-3 py-2 text-sm font-semibold text-soil-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+                  readOnly
+                  className="w-full rounded-xl border border-soil-200 bg-soil-50 px-3 py-2 text-sm font-semibold text-soil-500 cursor-not-allowed focus:outline-none"
                 />
               </div>
               <div>
@@ -222,45 +231,31 @@ export default function CustomerProfilePanel({ customer, open, onClose, onLogout
           </form>
         ) : (
           <>
-            {/* Read-Only Details Grid */}
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-3">
+            {/* Read-Only Details List */}
+            <div className="mt-3 flex flex-col rounded-2xl bg-white/60">
               <ProfileRow label="Customer ID" value={customer?.customer_id} />
               <ProfileRow label="Mobile Number" value={customer?.mobile_number} />
-              <ProfileRow label="Email" value={customer?.email} wide />
-              <ProfileRow label="Village / Location" value={customer?.village} />
-              <ProfileRow label="Member Since" value={createdAt} />
+              <ProfileRow label="Village" value={customer?.village} />
+              <ProfileRow label="Email" value={customer?.email} isLast />
             </div>
 
             {/* Quick Action Buttons */}
-            <div className="mt-4 flex flex-col gap-2">
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={handleMyOrdersClick}
-                  className="flex items-center justify-center gap-2 rounded-2xl border border-leaf-200 bg-leaf-50/70 px-3 py-2.5 text-xs font-bold text-leaf-700 transition hover:bg-leaf-100"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                  My Orders
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center justify-center gap-2 rounded-2xl border border-soil-200 bg-soil-50/70 px-3 py-2.5 text-xs font-bold text-soil-700 transition hover:bg-soil-100"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  Edit Profile
-                </button>
-              </div>
+            <div className="mt-4 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={handleMyOrdersClick}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#f2f7f1] px-4 py-2.5 text-sm font-bold text-[#3d7042] transition hover:bg-[#e6f0e4]"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                My Orders
+              </button>
 
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full rounded-2xl bg-leaf-600 px-4 py-2.5 text-xs sm:text-sm font-bold !text-white shadow-sm transition hover:bg-leaf-700"
+                className="w-full rounded-xl bg-[#3d7042] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#325e36]"
               >
                 Logout
               </button>
@@ -272,13 +267,11 @@ export default function CustomerProfilePanel({ customer, open, onClose, onLogout
   )
 }
 
-function ProfileRow({ label, value, wide = false }) {
+function ProfileRow({ label, value, isLast = false }) {
   return (
-    <div className={`rounded-2xl border border-soil-100 bg-soil-50/80 px-3 py-2.5 sm:px-4 sm:py-3 ${wide ? 'col-span-2' : ''}`}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-soil-400 sm:text-xs">{label}</p>
-      <p className="mt-1 break-words text-sm font-bold text-soil-700">
-        {value || 'Not available'}
-      </p>
+    <div className={`flex items-center justify-between px-3 py-2.5 ${isLast ? '' : 'border-b border-soil-100'}`}>
+      <span className="text-[11px] font-medium text-soil-500">{label}</span>
+      <span className="text-[11px] font-bold text-soil-800">{value || '-'}</span>
     </div>
   )
 }

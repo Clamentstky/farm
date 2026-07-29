@@ -62,7 +62,7 @@ export default function Login() {
       const data = await requestOtp(mobileNumber)
       setOtpSent(true)
       setDevOtp(data.dev_otp || '')
-      setSuccessMessage(data.message || 'OTP generated successfully')
+      setSuccessMessage(data.message || 'OTP sent successfully to your mobile number')
     } catch (err) {
       setFormError(extractErrorMessage(err))
     } finally {
@@ -102,154 +102,175 @@ export default function Login() {
 
   return (
     <AuthLayout
-      eyebrow="Welcome back"
-      title="Log in to your account"
-      description="Track orders and shop fresh farm products from your trusted local marketplace."
+      eyebrow="Welcome Back"
+      title="Login to GrameenFresh"
+      description="Access your farm-fresh orders and enjoy daily village deliveries."
     >
-        <div className="mb-6 grid grid-cols-2 rounded-xl bg-soil-100 p-1">
-          <button
-            type="button"
-            onClick={() => switchMode('password')}
-            className={`rounded-lg py-3 text-sm font-semibold transition-colors ${
-              mode === 'password' ? 'bg-white text-leaf-700 shadow-sm' : 'text-soil-500'
-            }`}
-          >
-            Password
-          </button>
-          <button
-            type="button"
-            onClick={() => switchMode('otp')}
-            className={`rounded-lg py-3 text-sm font-semibold transition-colors ${
-              mode === 'otp' ? 'bg-white text-leaf-700 shadow-sm' : 'text-soil-500'
-            }`}
-          >
-            OTP
-          </button>
-        </div>
+      {/* Mode Switcher Pills */}
+      <div className="mb-6 grid grid-cols-2 rounded-2xl bg-soil-100/80 p-1.5 text-center text-xs font-bold shadow-2xs">
+        <button
+          type="button"
+          onClick={() => switchMode('password')}
+          className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 transition ${
+            mode === 'password'
+              ? 'bg-[#118707] text-white shadow-xs'
+              : 'text-soil-600 hover:text-soil-800'
+          }`}
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <span>Password</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => switchMode('otp')}
+          className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 transition ${
+            mode === 'otp'
+              ? 'bg-[#118707] text-white shadow-xs'
+              : 'text-soil-600 hover:text-soil-800'
+          }`}
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          <span>OTP Login</span>
+        </button>
+      </div>
 
-        <AlertBanner message={formError} type="error" />
-        <AlertBanner message={successMessage} type="success" />
+      <AlertBanner message={formError} type="error" />
+      <AlertBanner message={successMessage} type="success" />
 
-        {mode === 'password' ? (
-          <form onSubmit={handlePasswordLogin} noValidate>
-            <FormInput
-              id="mobile_number"
-              label="Mobile Number"
-              type="tel"
-              inputMode="numeric"
-              placeholder="10-digit mobile number"
-              value={mobileNumber}
-              onChange={(e) => setMobileNumber(e.target.value)}
-              maxLength={10}
-              autoComplete="tel"
-            />
-            <FormInput
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+      {mode === 'password' ? (
+        <form onSubmit={handlePasswordLogin} noValidate className="space-y-4">
+          <FormInput
+            id="mobile_number"
+            label="Mobile Number"
+            type="tel"
+            inputMode="numeric"
+            placeholder="Enter 10-digit mobile number"
+            value={mobileNumber}
+            onChange={(e) => setMobileNumber(e.target.value)}
+            maxLength={10}
+            autoComplete="tel"
+          />
+          <FormInput
+            id="password"
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
 
-            <div className="mb-4 text-right">
-              <Link to="/forgot-password" className="text-sm font-semibold text-leaf-600">
-                Forgot password?
-              </Link>
+          <div className="flex items-center justify-between text-xs pt-1">
+            <label className="flex items-center gap-1.5 font-semibold text-soil-600 cursor-pointer">
+              <input type="checkbox" defaultChecked className="rounded border-soil-300 text-leaf-600 focus:ring-leaf-500" />
+              <span>Remember me</span>
+            </label>
+            <Link to="/forgot-password" className="font-bold text-leaf-700 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+
+          <PrimaryButton type="submit" loading={loading} className="w-full mt-2 min-h-[48px] text-base font-bold shadow-md">
+            Log In →
+          </PrimaryButton>
+        </form>
+      ) : (
+        <form onSubmit={handleOtpLogin} noValidate className="space-y-4">
+          <div>
+            <label htmlFor="otp_mobile_number" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-soil-700">
+              Mobile Number
+            </label>
+            <div className="flex overflow-hidden rounded-xl border border-soil-200 bg-white focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-500/20 transition">
+              <span className="flex items-center border-r border-soil-100 bg-soil-50 px-3.5 text-xs font-bold text-soil-600">
+                🇮🇳 +91
+              </span>
+              <input
+                id="otp_mobile_number"
+                type="tel"
+                inputMode="numeric"
+                placeholder="10-digit mobile number"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+                maxLength={10}
+                autoComplete="tel"
+                disabled={otpSent}
+                className="min-w-0 flex-1 bg-white px-4 py-3 text-sm text-soil-800 font-semibold placeholder:text-soil-400 focus:outline-none disabled:bg-soil-50 disabled:text-soil-500"
+              />
             </div>
+          </div>
 
-            <PrimaryButton type="submit" loading={loading}>
-              Log in
+          {!otpSent ? (
+            <PrimaryButton type="button" onClick={handleSendOtp} loading={otpLoading} className="w-full min-h-[48px] text-base font-bold shadow-md">
+              Send OTP Code
             </PrimaryButton>
-          </form>
-        ) : (
-          <form onSubmit={handleOtpLogin} noValidate>
-            <div className="mb-4">
-              <label htmlFor="otp_mobile_number" className="mb-1.5 block text-sm font-semibold text-soil-700">
-                Mobile Number
-              </label>
-              <div className="flex overflow-hidden rounded-xl border border-soil-200 bg-white focus-within:border-leaf-500 focus-within:ring-1 focus-within:ring-leaf-500">
-                <span className="flex items-center border-r border-soil-100 px-4 text-sm font-medium text-soil-500">
-                  +91
-                </span>
-                <input
-                  id="otp_mobile_number"
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder="9080285866"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  maxLength={10}
-                  autoComplete="tel"
-                  disabled={otpSent}
-                  className="min-w-0 flex-1 bg-white px-4 py-4 text-base text-soil-700 placeholder:text-soil-400 disabled:text-soil-500"
-                />
+          ) : (
+            <div className="space-y-4 pt-1">
+              <FormInput
+                id="otp_code"
+                label="Enter 6-Digit OTP"
+                type="text"
+                inputMode="numeric"
+                placeholder="e.g. 123456"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                maxLength={6}
+              />
+
+              <div className="flex items-center justify-between text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpSent(false)
+                    setOtpCode('')
+                    setDevOtp('')
+                    setSuccessMessage('')
+                  }}
+                  className="text-soil-500 hover:text-soil-800"
+                >
+                  ← Edit Number
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  className="text-leaf-700 hover:underline"
+                >
+                  Resend OTP
+                </button>
               </div>
-            </div>
 
-            {!otpSent ? (
-              <PrimaryButton type="button" onClick={handleSendOtp} loading={otpLoading}>
-                Generate OTP
-              </PrimaryButton>
-            ) : (
-              <>
-                <FormInput
-                  id="otp_code"
-                  label="Enter OTP"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Enter the 6-digit OTP"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  maxLength={6}
-                />
-
-                <div className="mb-4 flex items-center justify-between text-sm">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpSent(false)
-                      setOtpCode('')
-                      setDevOtp('')
-                      setSuccessMessage('')
-                    }}
-                    className="font-medium text-soil-500"
-                  >
-                    Change Number
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    className="font-semibold text-leaf-700"
-                  >
-                    Resend OTP
-                  </button>
+              {devOtp && (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-center shadow-2xs">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Development Mode OTP</p>
+                  <p className="mt-1 font-mono text-2xl font-black tracking-[0.3em] text-emerald-900">
+                    {devOtp}
+                  </p>
                 </div>
+              )}
 
-                {devOtp && (
-                  <div className="mb-4 rounded-xl border border-soil-200 bg-soil-50 px-4 py-3">
-                    <p className="text-xs font-semibold text-soil-600">Development OTP</p>
-                    <p className="mt-1 font-mono text-xl font-bold tracking-[0.35em] text-soil-700">
-                      {devOtp}
-                    </p>
-                  </div>
-                )}
+              <PrimaryButton type="submit" loading={loading} className="w-full min-h-[48px] text-base font-bold shadow-md">
+                Verify OTP & Login →
+              </PrimaryButton>
+            </div>
+          )}
+        </form>
+      )}
 
-                <PrimaryButton type="submit" loading={loading}>
-                  Verify OTP -&gt;
-                </PrimaryButton>
-              </>
-            )}
-          </form>
-        )}
-
-        <p className="mt-6 text-center text-sm text-soil-600">
-          New here?{' '}
-          <Link to="/register" className="font-semibold text-leaf-700">
-            Create an account
-          </Link>
+      {/* Switch to Register link card */}
+      <div className="mt-6 rounded-2xl border border-soil-100 bg-soil-50/70 p-4 text-center">
+        <p className="text-xs font-semibold text-soil-600">
+          Don't have an account yet?
         </p>
+        <Link
+          to="/register"
+          className="mt-1.5 inline-block font-bold text-[#118707] hover:underline text-sm"
+        >
+          Create New Account →
+        </Link>
+      </div>
     </AuthLayout>
   )
 }

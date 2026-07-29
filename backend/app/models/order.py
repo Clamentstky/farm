@@ -37,3 +37,7 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items")
     product = relationship("Product")
+
+    @property
+    def image_url(self) -> str:
+        return self.product.product_image if self.product else None

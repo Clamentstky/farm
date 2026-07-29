@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { extractErrorMessage } from '../api/client'
 import { getCategories, getProductsByCategory } from '../api/catalog'
+import CategoryCard from '../components/CategoryCard'
 import { BRAND_NAME } from '../data/brand'
 
 export default function CategoryProducts() {
@@ -86,9 +87,9 @@ export default function CategoryProducts() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => navigate('/customer/dashboard')}
+              onClick={() => navigate(-1)}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-soil-200 bg-white text-soil-700 shadow-2xs hover:bg-soil-50 active:scale-95 transition"
-              aria-label="Back to dashboard"
+              aria-label="Go back"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -120,7 +121,7 @@ export default function CategoryProducts() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {loading ? (
           <LoadingState />
         ) : error ? (
@@ -139,10 +140,10 @@ export default function CategoryProducts() {
               </div>
             </div>
 
-            {/* Products One-by-One Vertical Stack (1 Column) */}
+            {/* Products Grid (3 columns on desktop) */}
             <section className="mb-12">
               {products.length > 0 ? (
-                <div className="grid grid-cols-1 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -169,6 +170,22 @@ export default function CategoryProducts() {
                 </div>
               )}
             </section>
+
+            {/* Related Categories */}
+            {categories.length > 1 && (
+              <section className="mt-8 mb-12 border-t border-soil-100 pt-8">
+                <h2 className="mb-5 font-display text-xl font-bold text-soil-800">
+                  Related Categories
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                  {categories
+                    .filter(c => String(c.id) !== String(id))
+                    .map(category => (
+                      <CategoryCard key={category.id} category={category} />
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
       </main>

@@ -10,6 +10,15 @@ import { placeOrder } from '../api/order'
 import { extractErrorMessage } from '../api/client'
 import { BRAND_NAME, BRAND_TAGLINE } from '../data/brand'
 
+const TAMIL_NADU_DISTRICTS = [
+  'Ariyalur', 'Chengalpattu', 'Chennai', 'Coimbatore', 'Cuddalore', 'Dharmapuri', 'Dindigul',
+  'Erode', 'Kallakurichi', 'Kanchipuram', 'Kanyakumari', 'Karur', 'Krishnagiri', 'Madurai',
+  'Mayiladuthurai', 'Nagapattinam', 'Namakkal', 'Nilgiris', 'Perambalur', 'Pudukkottai',
+  'Ramanathapuram', 'Ranipet', 'Salem', 'Sivaganga', 'Tenkasi', 'Thanjavur', 'Theni',
+  'Thoothukudi', 'Tiruchirappalli', 'Tirunelveli', 'Tirupathur', 'Tiruppur', 'Tiruvallur',
+  'Tiruvannamalai', 'Tiruvarur', 'Vellore', 'Viluppuram', 'Virudhunagar'
+]
+
 const emptyForm = {
   full_name: '',
   mobile_number: '',
@@ -26,24 +35,29 @@ const PAYMENT_METHODS = [
   {
     id: 'Cash on Delivery',
     label: 'Cash on Delivery',
-    desc: 'Pay with cash upon delivery of your order.',
+    desc: 'Pay with cash or UPI upon delivery at your doorstep.',
     badge: 'Popular',
+    features: ['Pay on arrival', 'Cash or UPI accepted', 'Zero extra fees'],
     icon: (
-      <svg className="h-5 w-5 text-leaf-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 shadow-2xs">
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
     ),
   },
   {
     id: 'Online Payment',
     label: 'Online Payment',
-    desc: 'Pay via UPI, Cards, or Net Banking (Coming Soon).',
+    desc: 'Pay via UPI, Cards, or Net Banking (Integration in progress).',
     badge: 'Coming Soon',
     disabled: true,
     icon: (
-      <svg className="h-5 w-5 text-soil-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 shadow-2xs">
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
     ),
   },
 ]
@@ -51,7 +65,7 @@ const PAYMENT_METHODS = [
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { customer } = useAuth()
-  const { cartItems, cartCount, cartTotal, loading: cartLoading, refreshCart } = useCart()
+  const { cartItems, cartCount, cartTotal, loading: cartLoading, refreshCart, clearCart } = useCart()
 
   const [addresses, setAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
@@ -66,7 +80,7 @@ export default function CheckoutPage() {
   const [orderError, setOrderError] = useState('')
   const [addressesLoading, setAddressesLoading] = useState(false)
 
-  const deliveryCharge = cartTotal > 0 && cartTotal < 500 ? 40 : 0
+  const deliveryCharge = cartTotal > 0 && cartTotal < 100 ? 40 : 0
   const discount = 0
   const grandTotal = cartTotal + deliveryCharge - discount
 
@@ -192,6 +206,7 @@ export default function CheckoutPage() {
         delivery_charge: deliveryCharge,
         discount: discount,
       })
+      await refreshCart()
       navigate('/checkout/success', {
         state: {
           orderId: order.order_id,
@@ -253,17 +268,17 @@ export default function CheckoutPage() {
       {/* Top Header */}
       <header className="sticky top-0 z-30 border-b border-soil-100 bg-white/95 shadow-sm backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/customer/dashboard" className="flex items-center gap-3">
-            <BrandIcon className="h-10 w-10" />
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">{BRAND_NAME}</p>
-              <h1 className="font-display text-lg font-semibold text-soil-700">{BRAND_TAGLINE}</h1>
+          <Link to="/customer/dashboard" className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <BrandIcon className="h-8 w-8 sm:h-10 sm:w-10 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.18em] text-leaf-600 truncate">{BRAND_NAME}</p>
+              <h1 className="font-display text-xs sm:text-lg font-semibold text-soil-700 truncate">{BRAND_TAGLINE}</h1>
             </div>
           </Link>
 
           <Link
             to="/cart"
-            className="flex items-center gap-1.5 rounded-full border border-leaf-500/30 bg-leaf-50 px-4 py-2 text-xs font-bold text-leaf-700 transition hover:bg-leaf-100"
+            className="flex items-center gap-1.5 rounded-full border border-leaf-500/30 bg-leaf-50 px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-bold text-leaf-700 transition hover:bg-leaf-100 shrink-0"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -342,8 +357,8 @@ export default function CheckoutPage() {
                             : 'border-soil-200/80 bg-white hover:border-soil-300'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                          <div className="flex items-start gap-3 min-w-0 w-full sm:w-auto">
                             <input
                               type="radio"
                               name="selectedAddress"
@@ -351,7 +366,7 @@ export default function CheckoutPage() {
                               onChange={() => setSelectedAddressId(addr.id)}
                               className="mt-1 h-4 w-4 shrink-0 text-leaf-600 focus:ring-leaf-500"
                             />
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="font-bold text-soil-800 text-sm sm:text-base">
                                   {addr.full_name}
@@ -372,15 +387,19 @@ export default function CheckoutPage() {
                                 📞 {addr.mobile_number}
                               </p>
                               {addr.landmark && (
-                                <p className="text-xs text-soil-400">
+                                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-800 shadow-sm">
+                                  <svg className="h-3 w-3 shrink-0 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
                                   Landmark: {addr.landmark}
-                                </p>
+                                </div>
                               )}
                             </div>
                           </div>
 
                           {/* Address Action Buttons */}
-                          <div className="flex flex-wrap items-center justify-end gap-1.5 shrink-0 pt-0.5">
+                          <div className="flex flex-wrap items-center justify-start sm:justify-end gap-1.5 shrink-0 pl-7 sm:pl-0 pt-2 sm:pt-0 border-t border-soil-100 sm:border-0 mt-2 sm:mt-0">
                             <button
                               type="button"
                               onClick={(e) => {
@@ -434,25 +453,30 @@ export default function CheckoutPage() {
 
             {/* Payment Method Section */}
             <section className="rounded-3xl border border-soil-100 bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex items-center gap-2 border-b border-soil-100 pb-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-leaf-100 text-xs font-bold text-leaf-700">
-                  2
+              <div className="flex items-center justify-between border-b border-soil-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#118707] text-xs font-extrabold text-white shadow-xs ring-4 ring-leaf-100">
+                    2
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl font-bold text-soil-800">Payment Method</h3>
+                    <p className="text-xs text-soil-500">Choose your preferred mode of payment</p>
+                  </div>
                 </div>
-                <h3 className="font-display text-xl font-bold text-soil-800">Payment Method</h3>
               </div>
 
-              <div className="mt-4 space-y-3">
+              <div className="mt-5 space-y-3.5">
                 {PAYMENT_METHODS.map((method) => {
                   const isSelected = paymentMethod === method.id
                   return (
                     <label
                       key={method.id}
-                      className={`flex items-start gap-3 rounded-2xl border-2 p-4 transition cursor-pointer ${
+                      className={`relative flex items-start gap-3.5 rounded-2xl border-2 p-4 transition sm:p-5 ${
                         method.disabled
-                          ? 'opacity-60 border-soil-200 bg-soil-50 cursor-not-allowed'
+                          ? 'opacity-70 border-soil-200 bg-soil-50/70 cursor-not-allowed'
                           : isSelected
-                          ? 'border-leaf-500 bg-leaf-50/50 shadow-xs'
-                          : 'border-soil-200 bg-white hover:border-soil-300'
+                          ? 'border-[#118707] bg-gradient-to-r from-emerald-50/90 via-white to-green-50/40 shadow-sm ring-2 ring-[#118707]/15 cursor-pointer'
+                          : 'border-soil-200 bg-white hover:border-soil-300 cursor-pointer'
                       }`}
                     >
                       <input
@@ -462,31 +486,45 @@ export default function CheckoutPage() {
                         disabled={method.disabled}
                         checked={isSelected}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="mt-1 h-4 w-4 shrink-0 text-leaf-600 focus:ring-leaf-500"
+                        className="mt-1.5 h-4 w-4 shrink-0 text-[#118707] focus:ring-[#118707]"
                       />
+
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
                             {method.icon}
-                            <span className="font-bold text-soil-800 text-sm sm:text-base">
-                              {method.label}
-                            </span>
+                            <div>
+                              <span className="font-bold text-soil-800 text-base sm:text-lg block leading-snug">
+                                {method.label}
+                              </span>
+                              <p className="text-xs text-soil-500 leading-relaxed mt-0.5">
+                                {method.desc}
+                              </p>
+                            </div>
                           </div>
+
                           {method.badge && (
                             <span
-                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              className={`rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider shadow-2xs ${
                                 method.disabled
-                                  ? 'bg-soil-200 text-soil-600'
-                                  : 'bg-leaf-100 text-leaf-800'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                  : 'bg-[#118707] text-white'
                               }`}
                             >
                               {method.badge}
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-xs text-soil-500 leading-relaxed">
-                          {method.desc}
-                        </p>
+
+                        {method.features && isSelected && (
+                          <div className="mt-3 flex flex-wrap gap-2 border-t border-emerald-100 pt-3 text-[11px] font-bold text-emerald-800">
+                            {method.features.map((feat) => (
+                              <span key={feat} className="inline-flex items-center gap-1 rounded-md bg-emerald-100/80 px-2 py-0.5">
+                                ✓ {feat}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </label>
                   )
@@ -501,6 +539,33 @@ export default function CheckoutPage() {
               <h3 className="font-display text-xl font-bold text-soil-800 border-b border-soil-100 pb-3">
                 Order Summary
               </h3>
+
+              {/* Delivery Progress Bar */}
+              <div className="mt-4 rounded-xl border border-soil-100 bg-soil-50/50 p-3">
+                {cartTotal < 100 ? (
+                  <>
+                    <div className="flex items-center gap-2 text-sm font-semibold text-soil-800">
+                      <span>Add</span>
+                      <span className="text-leaf-700">₹{(100 - cartTotal).toFixed(2)}</span>
+                      <span>more to get</span>
+                      <span className="text-emerald-600 font-bold">FREE Delivery</span>
+                    </div>
+                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-soil-200">
+                      <div
+                        className="h-full rounded-full bg-leaf-500 transition-all duration-500"
+                        style={{ width: `${Math.min((cartTotal / 100) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-700">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Yay! You've unlocked FREE Delivery
+                  </div>
+                )}
+              </div>
 
               <div className="mt-4 space-y-4">
                 {/* Cart Items List */}
@@ -535,11 +600,16 @@ export default function CheckoutPage() {
                     <span className="font-semibold text-soil-800">₹{cartTotal.toFixed(2)}</span>
                   </div>
 
-                  <div className="flex justify-between text-soil-600">
+                  <div className="flex justify-between text-soil-600 items-center">
                     <span>Delivery Charge</span>
-                    <span className="font-semibold text-soil-800">
-                      {deliveryCharge ? `₹${deliveryCharge.toFixed(2)}` : 'FREE'}
-                    </span>
+                    {deliveryCharge === 0 ? (
+                      <div className="flex items-center gap-2">
+                        <strike className="text-soil-400">₹40</strike>
+                        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">FREE</span>
+                      </div>
+                    ) : (
+                      <span className="font-semibold text-soil-800">₹{deliveryCharge.toFixed(2)}</span>
+                    )}
                   </div>
 
                   {discount > 0 && (
@@ -680,15 +750,18 @@ export default function CheckoutPage() {
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-soil-500 mb-1">
                     District *
                   </label>
-                  <input
+                  <select
                     required
-                    type="text"
                     name="district"
                     value={addressForm.district}
                     onChange={handleAddressFormChange}
                     className="w-full rounded-xl border border-soil-200 bg-white px-3 py-2 text-xs font-semibold text-soil-800 outline-none focus:border-leaf-500 focus:ring-1 focus:ring-leaf-500"
-                    placeholder="District"
-                  />
+                  >
+                    <option value="" disabled>Select District</option>
+                    {TAMIL_NADU_DISTRICTS.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
