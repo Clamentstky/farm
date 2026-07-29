@@ -17,6 +17,7 @@ from app.schemas.customer import (
     ForgotPasswordRequest,
     ResetPasswordRequest,
     CustomerProfile,
+    CustomerUpdateProfile,
     TokenResponse,
     MessageResponse,
     OTPResponse,
@@ -224,7 +225,51 @@ def get_profile(current_customer: Customer = Depends(get_current_customer)):
     return CustomerProfile.model_validate(current_customer)
 
 
+@router.put("/profile", response_model=CustomerProfile)
+def update_profile(
+    payload: CustomerUpdateProfile,
+    current_customer: Customer = Depends(get_current_customer),
+    db: Session = Depends(get_db),
+):
+    if payload.mobile_number and payload.mobile_number != current_customer.mobile_number:
+        existing_mobile = (
+            db.query(Customer)
+            .filter(Customer.mobile_number == payload.mobile_number, Customer.id != current_customer.id)
+            .first()
+        )
+        if existing_mobile:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Mobile number already registered by another user",
+            )
+        current_customer.mobile_number = payload.mobile_number
+
+    if payload.email and payload.email != current_customer.email:
+        existing_email = (
+            db.query(Customer)
+            .filter(Customer.email == payload.email, Customer.id != current_customer.id)
+            .first()
+        )
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered by another user",
+            )
+        current_customer.email = payload.email
+
+    if payload.full_name is not None:
+        current_customer.full_name = payload.full_name
+
+    if payload.village is not None:
+        current_customer.village = payload.village
+
+    db.commit()
+    db.refresh(current_customer)
+    return CustomerProfile.model_validate(current_customer)
+
+
 @router.post("/logout", response_model=MessageResponse)
 def logout():
     # JWT is stateless; logout is handled client-side by discarding the token.
     return MessageResponse(message="Logged out successfully")
+

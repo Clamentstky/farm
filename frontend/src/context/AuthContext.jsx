@@ -36,6 +36,11 @@ export function AuthProvider({ children }) {
     setCustomer(customerData)
   }, [])
 
+  const updateCustomer = useCallback((customerData) => {
+    localStorage.setItem('customer', JSON.stringify(customerData))
+    setCustomer(customerData)
+  }, [])
+
   const logout = useCallback(async () => {
     try {
       await logoutApi()
@@ -48,7 +53,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ customer, login, logout, loading, isAuthenticated: !!customer }}>
+    <AuthContext.Provider value={{ customer, login, logout, updateCustomer, loading, isAuthenticated: !!customer }}>
       {children}
     </AuthContext.Provider>
   )

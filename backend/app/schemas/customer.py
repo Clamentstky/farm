@@ -99,6 +99,34 @@ class CustomerProfile(BaseModel):
     created_at: Optional[datetime] = None
 
 
+class CustomerUpdateProfile(BaseModel):
+    full_name: Optional[str] = None
+    mobile_number: Optional[str] = None
+    email: Optional[EmailStr] = None
+    village: Optional[str] = None
+
+    @field_validator("mobile_number")
+    @classmethod
+    def validate_mobile(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not re.fullmatch(r"[6-9]\d{9}", v):
+            raise ValueError("Mobile number must be a valid 10-digit Indian mobile number")
+        return v
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_name(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and len(v.strip()) < 2:
+            raise ValueError("Full name must be at least 2 characters")
+        return v.strip() if v is not None else None
+
+    @field_validator("village")
+    @classmethod
+    def validate_village(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and len(v.strip()) < 2:
+            raise ValueError("Village/Location is required")
+        return v.strip() if v is not None else None
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

@@ -131,6 +131,11 @@ const explicitProductImages = {
     '/product-images/Pomfret%20Fish2.jpg',
     '/product-images/Pomfret%20Fish3.jpg',
   ],
+  'Broiler Chicken': [
+    '/product-images/broiler-chicken.jpg',
+    '/product-images/chicken1.jpg',
+    '/product-images/chicken2.jpg',
+  ],
 }
 
 function productImagePath(imageName) {

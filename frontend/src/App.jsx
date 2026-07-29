@@ -7,16 +7,19 @@ import Dashboard from './pages/Dashboard'
 import CategoryProducts from './pages/CategoryProducts'
 import CartPage from './pages/CartPage'
 import ProductDetails from './pages/ProductDetails'
-import CheckoutAddress from './pages/CheckoutAddress'
-import CheckoutPayment from './pages/CheckoutPayment'
+import CheckoutPage from './pages/CheckoutPage'
 import CheckoutSuccess from './pages/CheckoutSuccess'
+import OrdersPage from './pages/OrdersPage'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './routes/ProtectedRoute'
+import ScrollToTop from './components/ScrollToTop'
 
 export default function App() {
   return (
     <div className="app-shell">
+      <ScrollToTop />
       <Routes>
+
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -55,18 +58,10 @@ export default function App() {
           }
         />
         <Route
-          path="/checkout/address"
+          path="/checkout"
           element={
             <ProtectedRoute>
-              <CheckoutAddress />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/checkout/payment"
-          element={
-            <ProtectedRoute>
-              <CheckoutPayment />
+              <CheckoutPage />
             </ProtectedRoute>
           }
         />
@@ -75,6 +70,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CheckoutSuccess />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
             </ProtectedRoute>
           }
         />

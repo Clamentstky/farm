@@ -21,5 +21,9 @@ export const resetPassword = (payload) =>
 export const getProfile = () =>
   apiClient.get('/api/auth/profile').then((res) => res.data)
 
+export const updateProfile = (payload) =>
+  apiClient.put('/api/auth/profile', payload).then((res) => res.data)
+
 export const logoutApi = () =>
   apiClient.post('/api/auth/logout').then((res) => res.data)
+

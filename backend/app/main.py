@@ -6,7 +6,7 @@ from sqlalchemy import inspect, text
 
 from app.core.config import settings
 from app.db.session import Base, engine
-from app.routers import auth, cart, catalog
+from app.routers import auth, cart, catalog, address, order
 import app.models  # noqa: F401 ensures models are registered before create_all
 
 app = FastAPI(title="Village Fresh Farm Delivery API", version="2.0.0")
@@ -52,6 +52,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(auth.router)
 app.include_router(catalog.router)
 app.include_router(cart.router)
+app.include_router(address.router)
+app.include_router(order.router)
 
 
 @app.get("/")

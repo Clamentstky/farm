@@ -11,20 +11,20 @@ const productLinks = [
 
 const galleryImages = [
   {
-    src: '/product-images/curd4.jpg',
-    alt: 'Fresh farm milk',
+    src: '/product-images/broiler-chicken.jpg',
+    alt: 'Broiler Chicken',
   },
   {
     src: '/product-images/white%20egg4.jpg',
     alt: 'Country eggs',
   },
   {
-    src: '/product-images/crab3.jpg',
-    alt: 'Fresh prawns',
+    src: '/product-images/curd4.jpg',
+    alt: 'Fresh dairy',
   },
   {
-    src: '/product-images/sardine4.jpg',
-    alt: 'Fresh meat cuts',
+    src: '/product-images/crab3.jpg',
+    alt: 'Fresh seafood',
   },
 ]
 

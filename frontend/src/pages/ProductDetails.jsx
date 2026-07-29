@@ -346,14 +346,6 @@ function ProductSection({ eyebrow, title, products, onAddToCart, showBrowseAll =
           <CompactProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
         ))}
       </div>
-      {showBrowseAll && (
-        <Link
-          to="/customer/dashboard"
-          className="mt-5 inline-flex min-h-10 items-center rounded-xl border border-soil-200 bg-white px-8 text-sm font-bold text-soil-700"
-        >
-          Browse all products
-        </Link>
-      )}
     </section>
   )
 }
