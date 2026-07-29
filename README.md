@@ -1,23 +1,23 @@
-# 🌾 FreshNest - Village Farm Delivery Platform
+# 🌾 GrameenFresh - Authentic Village Farm Delivery
 
-**FreshNest** is a full-stack, farm-to-table e-commerce web application connecting local village farms directly to customers. Built with **React 18**, **FastAPI**, **SQLAlchemy**, and **MySQL**.
+**GrameenFresh** is a full-stack, farm-to-table e-commerce web application connecting local village farms directly to customers. Built with **React 18**, **FastAPI**, **SQLAlchemy**, and **MySQL**.
 
 ---
 
 ## ✨ Features
 
 - 🔐 **Authentication & Profile**: Customer registration, password/OTP login, password reset, and inline profile editing (name, phone, email, village).
-- 🥦 **Farm Product Catalog**: 10 categories (Milk & Dairy, Eggs, Seafood, Poultry, Meat, etc.) and 30+ fresh farm products with stock tracking.
+- 🥦 **Farm Product Catalog**: 10 categories (Milk & Dairy, Eggs, Seafood, Poultry, Meat, etc.) and 30+ fresh farm products with stock tracking and beautiful product imagery.
 - 🎠 **Dynamic Dashboard**:
   - Horizontal side-scrollable carousels for **Featured** and **Popular** products.
   - Sticky mobile & desktop headers with active section tracking (*Home, Categories, Featured, Popular*).
 - 🏷️ **Category Feed**: Clean single-column view for exploring products by category.
 - 🛒 **Advanced Shopping Cart**:
   - Item quantity controls, subtotal formatting, single-line clear cart option, promo code support, and order summary.
-  - 3-Step Checkout Timeline (*Cart → Address → Payment → Order Placed*).
+  - Streamlined Single-Page Checkout (Review Cart, Select Address & Payment, Place Order).
 - 📍 **Address & Order Management**:
-  - Saved delivery address management (Add, Edit, Set Default, Delete).
-  - Orders page with status filters (*All, Pending, Processing, Delivered, Cancelled*), stats, live order tracking timeline, and order cancellation/deletion.
+  - Saved delivery address management (Add, Edit, Set Default, Delete) integrated right into the checkout flow.
+  - Minimalist, item-focused Flipkart-style Orders page with image previews, order ID generation (ORD-YYYYMMDD-XXXX), live order tracking timeline, and order cancellation.
 
 ---
 
@@ -40,9 +40,9 @@
 - MySQL Server
 
 ### 1. Database Setup
-Create MySQL database `freshnest` and import schema:
+Create MySQL database `farm` and import schema:
 ```bash
-mysql -u root -p freshnest < backend/schema.sql
+mysql -u root -p farm < backend/schema.sql
 ```
 
 ### 2. Backend Setup
@@ -104,4 +104,4 @@ Task1/
 ---
 
 ## 📜 License
-Developed for FreshNest Village Farm Delivery Platform.
+Developed for GrameenFresh - Authentic Village Farm Delivery.
