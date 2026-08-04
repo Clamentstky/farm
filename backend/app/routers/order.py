@@ -1,17 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
+from typing import Optional
 
 from app.core.deps import get_current_customer
 from app.db.session import get_db
 from app.models.customer import Customer
 from app.models.address import CustomerAddress
 from app.models.cart import Cart
-from app.models.order import Order, OrderItem
+from app.models.order import Order, OrderItem, OrderStatusHistory
 from app.models.product import Product
 from app.routers.catalog import sale_price, sale_stock, sale_unit
 from app.schemas.customer import MessageResponse
-from app.schemas.order import PlaceOrderIn, OrderOut
+from app.schemas.order import PlaceOrderIn, OrderOut, OrderPaginatedOut, OrderStatusHistoryOut
+from app.crud.crud_order import get_orders_paginated, get_order_by_id
+from app.services.order_service import cancel_order_service, reorder_service
+from app.services.invoice_service import generate_invoice_pdf
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
@@ -96,6 +101,9 @@ def place_order(
     db.add(order)
     db.flush()
 
+    history = OrderStatusHistory(order_id=order.id, status="Pending")
+    db.add(history)
+
     # Create order items
     for cart_item in cart_items:
         product = cart_item.product
@@ -124,26 +132,36 @@ def place_order(
     # Reload with items
     order = (
         db.query(Order)
-        .options(joinedload(Order.items).joinedload(OrderItem.product))
+        .options(joinedload(Order.items).joinedload(OrderItem.product), joinedload(Order.history), joinedload(Order.address))
         .filter(Order.id == order.id)
         .first()
     )
     return order
 
 
-@router.get("", response_model=list[OrderOut])
+@router.get("", response_model=OrderPaginatedOut)
 def get_orders(
+    page: int = 1,
+    limit: int = 10,
+    search: Optional[str] = None,
+    order_status: Optional[str] = None,
+    sort: str = "newest",
     db: Session = Depends(get_db),
     customer: Customer = Depends(get_current_customer),
 ):
-    orders = (
-        db.query(Order)
-        .options(joinedload(Order.items).joinedload(OrderItem.product))
-        .filter(Order.customer_id == customer.id)
-        .order_by(Order.created_at.desc())
-        .all()
-    )
-    return orders
+    skip = (page - 1) * limit
+    orders, total = get_orders_paginated(db, customer.id, skip, limit, search, order_status, sort)
+    
+    import math
+    pages = math.ceil(total / limit) if total > 0 else 1
+    
+    return {
+        "items": orders,
+        "total": total,
+        "page": page,
+        "size": limit,
+        "pages": pages
+    }
 
 
 @router.get("/{order_id}", response_model=OrderOut)
@@ -152,12 +170,7 @@ def get_order(
     db: Session = Depends(get_db),
     customer: Customer = Depends(get_current_customer),
 ):
-    query = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.product)).filter(Order.customer_id == customer.id)
-    if order_id.isdigit():
-        order = query.filter((Order.id == int(order_id)) | (Order.order_id == order_id)).first()
-    else:
-        order = query.filter(Order.order_id == order_id).first()
-
+    order = get_order_by_id(db, order_id, customer.id)
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
     return order
@@ -180,4 +193,55 @@ def delete_order(
 
     db.delete(order)
     db.commit()
-    return MessageResponse(message="Order deleted successfully")
+    return {"message": "Order deleted successfully"}
+
+
+@router.post("/{order_id}/cancel", response_model=MessageResponse)
+def cancel_order(
+    order_id: str,
+    db: Session = Depends(get_db),
+    customer: Customer = Depends(get_current_customer),
+):
+    cancel_order_service(db, order_id, customer.id)
+    return {"message": "Order cancelled successfully"}
+
+
+@router.post("/{order_id}/reorder", response_model=MessageResponse)
+def reorder(
+    order_id: str,
+    db: Session = Depends(get_db),
+    customer: Customer = Depends(get_current_customer),
+):
+    added_count = reorder_service(db, order_id, customer.id)
+    return {"message": f"Successfully added {added_count} items to your cart"}
+
+
+@router.get("/{order_id}/tracking", response_model=list[OrderStatusHistoryOut])
+def get_order_tracking(
+    order_id: str,
+    db: Session = Depends(get_db),
+    customer: Customer = Depends(get_current_customer),
+):
+    order = get_order_by_id(db, order_id, customer.id)
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    return order.history
+
+
+@router.get("/{order_id}/invoice")
+def download_invoice(
+    order_id: str,
+    db: Session = Depends(get_db),
+    customer: Customer = Depends(get_current_customer),
+):
+    order = get_order_by_id(db, order_id, customer.id)
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+    pdf_buffer = generate_invoice_pdf(order)
+
+    headers = {
+        'Content-Disposition': f'attachment; filename="Invoice_{order.order_id}.pdf"'
+    }
+
+    return StreamingResponse(pdf_buffer, media_type="application/pdf", headers=headers)

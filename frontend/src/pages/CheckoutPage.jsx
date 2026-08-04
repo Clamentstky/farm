@@ -49,11 +49,9 @@ const PAYMENT_METHODS = [
   {
     id: 'Online Payment',
     label: 'Online Payment',
-    desc: 'Pay via UPI, Cards, or Net Banking (Integration in progress).',
-    badge: 'Coming Soon',
-    disabled: true,
+    desc: 'Pay via UPI, Cards, or Net Banking.',
     icon: (
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 shadow-2xs">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-2xs">
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
@@ -80,7 +78,7 @@ export default function CheckoutPage() {
   const [orderError, setOrderError] = useState('')
   const [addressesLoading, setAddressesLoading] = useState(false)
 
-  const deliveryCharge = cartTotal > 0 && cartTotal < 100 ? 40 : 0
+  const deliveryCharge = 0 // cartTotal > 0 && cartTotal < 100 ? 40 : 0
   const discount = 0
   const grandTotal = cartTotal + deliveryCharge - discount
 
@@ -191,10 +189,6 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
       setOrderError('Please select a delivery address')
-      return
-    }
-    if (paymentMethod === 'Online Payment') {
-      setOrderError('Online payment is coming soon. Please select Cash on Delivery.')
       return
     }
     setPlacingOrder(true)
@@ -540,33 +534,8 @@ export default function CheckoutPage() {
                 Order Summary
               </h3>
 
-              {/* Delivery Progress Bar */}
-              <div className="mt-4 rounded-xl border border-soil-100 bg-soil-50/50 p-3">
-                {cartTotal < 100 ? (
-                  <>
-                    <div className="flex items-center gap-2 text-sm font-semibold text-soil-800">
-                      <span>Add</span>
-                      <span className="text-leaf-700">₹{(100 - cartTotal).toFixed(2)}</span>
-                      <span>more to get</span>
-                      <span className="text-emerald-600 font-bold">FREE Delivery</span>
-                    </div>
-                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-soil-200">
-                      <div
-                        className="h-full rounded-full bg-leaf-500 transition-all duration-500"
-                        style={{ width: `${Math.min((cartTotal / 100) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-700">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Yay! You've unlocked FREE Delivery
-                  </div>
-                )}
-              </div>
-
+              {/* Delivery Progress Bar (Removed) */}
+              
               <div className="mt-4 space-y-4">
                 {/* Cart Items List */}
                 <div className="max-h-72 space-y-2.5 overflow-y-auto pr-1">
@@ -602,14 +571,7 @@ export default function CheckoutPage() {
 
                   <div className="flex justify-between text-soil-600 items-center">
                     <span>Delivery Charge</span>
-                    {deliveryCharge === 0 ? (
-                      <div className="flex items-center gap-2">
-                        <strike className="text-soil-400">₹40</strike>
-                        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">FREE</span>
-                      </div>
-                    ) : (
-                      <span className="font-semibold text-soil-800">₹{deliveryCharge.toFixed(2)}</span>
-                    )}
+                    <span className="font-semibold text-soil-800">₹{deliveryCharge.toFixed(2)}</span>
                   </div>
 
                   {discount > 0 && (

@@ -103,7 +103,7 @@ export default function Login() {
   return (
     <AuthLayout
       eyebrow="Welcome Back"
-      title="Login to GrameenFresh"
+      title="Login to FarmNest"
       description="Access your farm-fresh orders and enjoy daily village deliveries."
     >
       {/* Mode Switcher Pills */}

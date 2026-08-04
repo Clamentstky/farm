@@ -63,7 +63,7 @@ export default function Register() {
   return (
     <AuthLayout
       eyebrow="Create Account"
-      title="Join GrameenFresh Market"
+      title="Join FarmNest Market"
       description="Register with your details to receive daily village farm deliveries."
     >
       <AlertBanner message={formError} />
@@ -152,7 +152,7 @@ export default function Register() {
       {/* Switch to Login link card */}
       <div className="mt-6 rounded-2xl border border-soil-100 bg-soil-50/70 p-4 text-center">
         <p className="text-xs font-semibold text-soil-600">
-          Already registered with GrameenFresh?
+          Already registered with FarmNest?
         </p>
         <Link
           to="/login"

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
+from app.schemas.address import AddressOut
 
 
 class OrderItemOut(BaseModel):
@@ -11,6 +12,15 @@ class OrderItemOut(BaseModel):
     price: float
     unit: Optional[str] = None
     image_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class OrderStatusHistoryOut(BaseModel):
+    id: int
+    status: str
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -28,6 +38,7 @@ class OrderOut(BaseModel):
     order_id: str
     customer_id: int
     address_id: Optional[int] = None
+    address: Optional[AddressOut] = None
     total_amount: float
     delivery_charge: float
     discount: float
@@ -35,6 +46,14 @@ class OrderOut(BaseModel):
     order_status: str
     created_at: Optional[datetime] = None
     items: List[OrderItemOut] = []
+    history: List[OrderStatusHistoryOut] = []
 
     class Config:
         from_attributes = True
+
+class OrderPaginatedOut(BaseModel):
+    items: List[OrderOut]
+    total: int
+    page: int
+    size: int
+    pages: int

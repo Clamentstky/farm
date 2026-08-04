@@ -22,6 +22,7 @@ class Order(Base):
     customer = relationship("Customer")
     address = relationship("CustomerAddress")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+    history = relationship("OrderStatusHistory", back_populates="order", cascade="all, delete-orphan", order_by="OrderStatusHistory.created_at")
 
 
 class OrderItem(Base):
@@ -41,3 +42,14 @@ class OrderItem(Base):
     @property
     def image_url(self) -> str:
         return self.product.product_image if self.product else None
+
+
+class OrderStatusHistory(Base):
+    __tablename__ = "order_status_history"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False, index=True)
+    status = Column(String(50), nullable=False)
+    created_at = Column("updated_at", DateTime(timezone=True), server_default=func.now())
+
+    order = relationship("Order", back_populates="history")

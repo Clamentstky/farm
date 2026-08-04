@@ -83,7 +83,7 @@ export default function CheckoutSuccess() {
             Order Placed Successfully!
           </h2>
           <p className="mt-2 max-w-md text-xs font-medium text-soil-500 sm:text-sm leading-relaxed">
-            Thank you for shopping with GrameenFresh! We have received your order and are preparing it fresh for delivery.
+            Thank you for shopping with FarmNest! We have received your order and are preparing it fresh for delivery.
           </p>
         </div>
 
@@ -127,83 +127,88 @@ export default function CheckoutSuccess() {
         {/* Order Details Card */}
         <div className="mt-6 rounded-3xl border border-white/70 bg-white p-6 shadow-sm">
           {/* Order ID & Copy Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-soil-100 pb-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Order Reference</p>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="font-display text-lg sm:text-xl font-bold text-soil-800">{orderId}</span>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col border-b border-soil-100 pb-3 gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-soil-400 text-center w-full block">Order Reference</span>
+              <div className="flex justify-between items-center">
+                <span className="font-display font-bold text-soil-800 break-all pr-2">{orderId}</span>
                 <button
                   type="button"
                   onClick={handleCopyOrderId}
-                  className="rounded-lg bg-soil-100 px-2 py-0.5 text-[11px] font-bold text-soil-600 hover:bg-soil-200 shrink-0"
+                  className="rounded-lg bg-soil-100 px-3 py-1 text-[10px] font-bold text-soil-600 hover:bg-soil-200 shrink-0"
                 >
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
               </div>
             </div>
 
-            <div className="sm:text-right">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Placed On</p>
-              <p className="text-xs font-bold text-soil-700 mt-0.5">{formatDate(orderDate)}</p>
-            </div>
-          </div>
-
-          {/* Details Grid */}
-          <div className="mt-4 grid grid-cols-2 gap-4 text-xs sm:grid-cols-3 sm:text-sm">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-soil-400 sm:text-xs">
-                Payment Method
-              </p>
-              <p className="mt-0.5 font-bold text-soil-800">{paymentMethod}</p>
+            <div className="flex justify-between items-center border-b border-soil-100 pb-3">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Payment Method</span>
+              <span className="font-bold text-soil-800">{paymentMethod}</span>
             </div>
 
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-soil-400 sm:text-xs">
-                Status
-              </p>
-              <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800">
+            <div className="flex justify-between items-center border-b border-soil-100 pb-3">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Status</span>
+              <span className="inline-block rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800">
                 {orderStatus || 'Pending'}
               </span>
             </div>
 
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-soil-400 sm:text-xs">
-                Total Paid
-              </p>
-              <p className="mt-0.5 font-display text-lg font-bold text-leaf-700">
+            <div className="flex justify-between items-center border-b border-soil-100 pb-3">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Total Paid</span>
+              <span className="font-display text-base sm:text-lg font-bold text-leaf-700">
                 ₹{totalAmount ? Number(totalAmount).toFixed(2) : '0.00'}
-              </p>
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center border-b border-soil-100 pb-3">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-soil-400">Placed On</span>
+              <span className="font-bold text-soil-700 text-xs">{formatDate(orderDate)}</span>
             </div>
           </div>
 
           {/* Delivery Address Details */}
           {address && (
-            <div className="mt-5 rounded-2xl border border-soil-100 bg-soil-50/70 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-soil-500 mb-1">
-                📍 Shipping To
-              </p>
-              <p className="font-bold text-soil-800 text-xs sm:text-sm">{address.full_name}</p>
-              <p className="mt-0.5 text-xs text-soil-600">{address.address}, {address.village}</p>
-              <p className="text-xs text-soil-600">{address.district}, {address.state} - {address.pincode}</p>
-              <p className="mt-1 text-xs font-semibold text-soil-500">📞 {address.mobile_number}</p>
+            <div className="mt-5 rounded-2xl border border-[#f2ebe1] bg-[#fcfaf7] p-5 shadow-sm">
+              <div className="flex items-center gap-1.5 mb-2.5">
+                <span className="text-pink-500 text-[10px]">📍</span>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-soil-900">
+                  Shipping To
+                </p>
+              </div>
+              <p className="font-bold text-soil-900 text-sm">{address.full_name}</p>
+              <p className="mt-1 text-sm text-soil-700">{address.address}, {address.village}</p>
+              <p className="text-sm text-soil-700">{address.district}, {address.state} - {address.pincode}</p>
+              <div className="mt-2.5 flex items-center gap-1.5">
+                <span className="text-pink-500 text-xs">📞</span>
+                <p className="text-sm font-bold text-soil-900">{address.mobile_number}</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col gap-3">
           <Link
-            to="/orders"
-            className="flex-1 rounded-2xl bg-leaf-600 py-3.5 text-center text-xs sm:text-sm font-bold text-white shadow-lg shadow-leaf-600/30 transition hover:bg-leaf-700 active:scale-98"
+            to={`/my-orders/${orderId}`}
+            className="w-full rounded-2xl bg-[#055205] py-3.5 text-center text-sm font-extrabold text-white shadow-lg shadow-[#055205]/20 transition hover:brightness-110 active:scale-98"
           >
-            View My Orders
+            Track Order
           </Link>
-          <Link
-            to="/customer/dashboard"
-            className="flex-1 rounded-2xl border border-soil-200 bg-white py-3.5 text-center text-xs sm:text-sm font-bold text-soil-700 shadow-2xs transition hover:bg-soil-50"
-          >
-            Continue Shopping
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              to="/my-orders"
+              className="flex-1 rounded-2xl border border-leaf-200 bg-leaf-50 py-3.5 text-center text-xs sm:text-sm font-bold text-leaf-700 shadow-sm transition hover:bg-leaf-100"
+            >
+              All Orders
+            </Link>
+            <Link
+              to="/customer/dashboard"
+              className="flex-1 rounded-2xl border border-soil-200 bg-white py-3.5 text-center text-xs sm:text-sm font-bold text-soil-700 shadow-sm transition hover:bg-soil-50"
+            >
+              Continue Shopping
+            </Link>
+          </div>
         </div>
       </main>
 

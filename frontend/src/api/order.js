@@ -18,4 +18,14 @@ export async function getOrder(orderId) {
 export async function deleteOrder(orderId) {
   const { data } = await apiClient.delete(`/api/orders/${orderId}`)
   return data
+}
+
+export async function cancelOrder(orderId) {
+  const { data } = await apiClient.post(`/api/orders/${orderId}/cancel`)
+  return data
+}
+
+export async function reorderItems(orderId) {
+  const { data } = await apiClient.post(`/api/orders/${orderId}/reorder`)
+  return data
 }

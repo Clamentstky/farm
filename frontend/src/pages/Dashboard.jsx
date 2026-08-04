@@ -17,7 +17,7 @@ import {
   getProducts,
 } from '../api/catalog'
 import { extractErrorMessage } from '../api/client'
-import { BRAND_NAME, BRAND_TAGLINE, heroSlides, orderedCategories } from '../data/brand'
+import { BRAND_NAME, BRAND_TAGLINE, heroSlides, orderedCategories, productImage } from '../data/brand'
 
 export default function Dashboard() {
   const { customer, logout } = useAuth()
@@ -63,7 +63,7 @@ export default function Dashboard() {
     try {
       const [categoryData, featuredData, popularData] = await Promise.all([
         getCategories(),
-        getFeaturedProducts(),
+        getProducts(),
         getPopularProducts(),
       ])
       setCategories(categoryData)
@@ -149,10 +149,10 @@ export default function Dashboard() {
           <Link to="/customer/dashboard" className="flex min-w-0 items-center gap-3">
             <BrandIcon className="h-10 w-10" />
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">
+              <p className="text-sm font-black uppercase tracking-[0.2em] text-leaf-700">
                 {BRAND_NAME}
               </p>
-              <h1 className="truncate font-display text-xl font-semibold text-soil-700">
+              <h1 className="truncate font-display text-base font-semibold text-soil-700">
                 {BRAND_TAGLINE}
               </h1>
             </div>
@@ -358,15 +358,49 @@ export default function Dashboard() {
           </div>
 
           {/* Mobile Search Bar */}
-          <div className="mt-4 flex min-h-[54px] items-center gap-3 rounded-2xl bg-white px-4 shadow-sm">
-            <SearchIcon />
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search milk, fish, eggs..."
-              className="min-w-0 flex-1 bg-transparent text-sm font-medium text-soil-700 placeholder:text-soil-400 focus:outline-none"
-            />
+          <div className="mt-4 relative">
+            <div className="flex min-h-[54px] items-center gap-3 rounded-2xl bg-white px-4 shadow-sm">
+              <SearchIcon />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search milk, fish, eggs..."
+                className="min-w-0 flex-1 bg-transparent text-sm font-medium text-soil-700 placeholder:text-soil-400 focus:outline-none"
+              />
+            </div>
+            
+            {hasSearch && searchResults.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-soil-100 bg-white shadow-xl">
+                <ul className="max-h-[300px] overflow-y-auto">
+                  {searchResults.slice(0, 5).map(product => (
+                    <li key={product.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchTerm('')
+                          handleAddToCart(product, 1)
+                        }}
+                        className="w-full flex items-center gap-3 border-b border-soil-50 p-3 text-left hover:bg-soil-50 transition"
+                      >
+                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-soil-100">
+                          <img src={productImage(product)} alt={product.product_name} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-extrabold text-soil-900 text-sm truncate">{product.product_name}</p>
+                          <p className="text-xs font-medium text-soil-500 mt-0.5 truncate">
+                            ₹{product.price} • {product.unit}
+                          </p>
+                        </div>
+                        <div className="text-xs font-bold text-leaf-600 bg-leaf-50 px-3 py-1.5 rounded-full shrink-0">
+                          + Add
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </section>

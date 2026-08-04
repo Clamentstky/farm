@@ -1,4 +1,4 @@
-export const BRAND_NAME = 'GrameenFresh'
+export const BRAND_NAME = 'FarmNest'
 export const BRAND_TAGLINE = 'Authentic Village Farm Delivery'
 export const BRAND_FULL_NAME = `${BRAND_NAME} - ${BRAND_TAGLINE}`
 

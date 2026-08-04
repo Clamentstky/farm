@@ -9,7 +9,8 @@ import CartPage from './pages/CartPage'
 import ProductDetails from './pages/ProductDetails'
 import CheckoutPage from './pages/CheckoutPage'
 import CheckoutSuccess from './pages/CheckoutSuccess'
-import OrdersPage from './pages/OrdersPage'
+import MyOrders from './pages/MyOrders'
+import OrderDetails from './pages/OrderDetails'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './routes/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
@@ -74,10 +75,19 @@ export default function App() {
           }
         />
         <Route
-          path="/orders"
+          path="/my-orders"
           element={
             <ProtectedRoute>
-              <OrdersPage />
+              <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/orders" element={<Navigate to="/my-orders" replace />} />
+        <Route
+          path="/my-orders/:orderId"
+          element={
+            <ProtectedRoute>
+              <OrderDetails />
             </ProtectedRoute>
           }
         />

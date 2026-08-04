@@ -131,3 +131,11 @@ ON DUPLICATE KEY UPDATE
   unit = VALUES(unit),
   is_featured = VALUES(is_featured),
   status = VALUES(status);
+
+CREATE TABLE IF NOT EXISTS order_status_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_history_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

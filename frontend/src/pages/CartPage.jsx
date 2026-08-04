@@ -31,7 +31,7 @@ export default function CartPage() {
   const [notice, setNotice] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
 
-  const deliveryCharge = cartTotal > 0 && cartTotal < 100 ? 40 : 0
+  const deliveryCharge = 0 // cartTotal > 0 && cartTotal < 100 ? 40 : 0
   const grandTotal = Math.max(0, cartTotal + deliveryCharge)
 
   const handleLogout = async () => {
@@ -106,25 +106,7 @@ export default function CartPage() {
         </div>
       </header>
 
-      {/* Checkout Timeline Bar */}
-      <div className="border-b border-soil-100 bg-white px-4 py-3">
-        <div className="mx-auto flex max-w-3xl items-center justify-between text-xs font-bold">
-          <div className="flex items-center gap-2 text-leaf-700">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-leaf-600 text-white text-[11px]">1</span>
-            <span>Cart ({cartCount})</span>
-          </div>
-          <div className="h-0.5 w-12 bg-soil-200 sm:w-20" />
-          <div className="flex items-center gap-2 text-soil-400">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-soil-100 text-soil-500 text-[11px]">2</span>
-            <span>Address</span>
-          </div>
-          <div className="h-0.5 w-12 bg-soil-200 sm:w-20" />
-          <div className="flex items-center gap-2 text-soil-400">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-soil-100 text-soil-500 text-[11px]">3</span>
-            <span>Payment</span>
-          </div>
-        </div>
-      </div>
+
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between gap-3">
@@ -264,33 +246,8 @@ export default function CartPage() {
             <aside className="h-fit rounded-3xl border border-soil-100 bg-white p-5 sm:p-6 shadow-sm">
               <h2 className="font-display text-xl font-bold text-soil-800">Order Summary</h2>
 
-              {/* Delivery Progress Bar (Amazon/Flipkart style) */}
-              <div className="mt-4 rounded-xl border border-soil-100 bg-soil-50/50 p-3">
-                {cartTotal < 100 ? (
-                  <>
-                    <div className="flex items-center gap-2 text-sm font-semibold text-soil-800">
-                      <span>Add</span>
-                      <span className="text-leaf-700">₹{(100 - cartTotal).toFixed(2)}</span>
-                      <span>more to get</span>
-                      <span className="text-emerald-600 font-bold">FREE Delivery</span>
-                    </div>
-                    <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-soil-200">
-                      <div
-                        className="h-full rounded-full bg-leaf-500 transition-all duration-500"
-                        style={{ width: `${Math.min((cartTotal / 100) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm font-bold text-emerald-700">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Yay! You've unlocked FREE Delivery
-                  </div>
-                )}
-              </div>
-
+              {/* Delivery Progress Bar (Removed) */}
+              
               <div className="mt-4 space-y-3 border-b border-soil-100 pb-4 text-xs font-semibold text-soil-600 sm:text-sm">
                 <div className="flex justify-between">
                   <span>Items Subtotal ({cartCount})</span>
@@ -298,14 +255,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Delivery Charge</span>
-                  {deliveryCharge === 0 ? (
-                    <div className="flex items-center gap-2">
-                      <strike className="text-soil-400">₹40</strike>
-                      <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">FREE</span>
-                    </div>
-                  ) : (
-                    <span className="font-bold text-soil-800">₹{deliveryCharge.toFixed(2)}</span>
-                  )}
+                  <span className="font-bold text-soil-800">₹{deliveryCharge.toFixed(2)}</span>
                 </div>
               </div>
 

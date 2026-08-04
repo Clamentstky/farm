@@ -9,7 +9,7 @@ from app.db.session import Base, engine
 from app.routers import auth, cart, catalog, address, order
 import app.models  # noqa: F401 ensures models are registered before create_all
 
-app = FastAPI(title="Village Fresh Farm Delivery API", version="2.0.0")
+app = FastAPI(title="FarmNest Delivery API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,4 +58,4 @@ app.include_router(order.router)
 
 @app.get("/")
 def health_check():
-    return {"status": "ok", "service": "Village Fresh Farm Delivery API"}
+    return {"status": "ok", "service": "FarmNest Delivery API"}
