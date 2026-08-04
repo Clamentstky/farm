@@ -1,23 +1,40 @@
-# 🌾 GrameenFresh - Authentic Village Farm Delivery
+# 🌾 FarmNest - Authentic Village Farm Delivery
 
-**GrameenFresh** is a full-stack, farm-to-table e-commerce web application connecting local village farms directly to customers. Built with **React 18**, **FastAPI**, **SQLAlchemy**, and **MySQL**.
+**FarmNest** is a full-stack, premium farm-to-table e-commerce web application connecting local village farms directly to customers. Built with **React 18**, **Framer Motion**, **FastAPI**, **SQLAlchemy**, and **MySQL**, providing an ultra-premium, dynamic, and responsive shopping experience.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- 🔐 **Authentication & Profile**: Customer registration, password/OTP login, password reset, and inline profile editing (name, phone, email, village).
-- 🥦 **Farm Product Catalog**: 10 categories (Milk & Dairy, Eggs, Seafood, Poultry, Meat, etc.) and 30+ fresh farm products with stock tracking and beautiful product imagery.
-- 🎠 **Dynamic Dashboard**:
-  - Horizontal side-scrollable carousels for **Featured** and **Popular** products.
-  - Sticky mobile & desktop headers with active section tracking (*Home, Categories, Featured, Popular*).
-- 🏷️ **Category Feed**: Clean single-column view for exploring products by category.
-- 🛒 **Advanced Shopping Cart**:
-  - Item quantity controls, subtotal formatting, single-line clear cart option, promo code support, and order summary.
-  - Streamlined Single-Page Checkout (Review Cart, Select Address & Payment, Place Order).
-- 📍 **Address & Order Management**:
-  - Saved delivery address management (Add, Edit, Set Default, Delete) integrated right into the checkout flow.
-  - Minimalist, item-focused Flipkart-style Orders page with image previews, order ID generation (ORD-YYYYMMDD-XXXX), live order tracking timeline, and order cancellation.
+### 🔐 Authentication & Profile
+- Customer registration, secure login, password reset.
+- Inline profile editing (name, phone, email, village) integrated into a sleek side-panel.
+
+### 🥦 Farm Product Catalog & Dashboard
+- **Dynamic Dashboard**: 
+  - Horizontal side-scrollable carousels showcasing **all products**, providing a seamless browsing experience without leaving the page.
+  - Sticky mobile & desktop headers with active section tracking.
+- **Premium UI / Micro-interactions**: 
+  - An animated, glassmorphism-style footer powered by **Framer Motion** featuring staggered entrances, hover glow effects, and scale transitions.
+  - Consistent branding with large, clean typography and lush green aesthetics.
+- 10 structured categories (Milk & Dairy, Eggs, Seafood, Poultry, Meat, etc.) and 30+ fresh farm products with stock tracking and high-quality imagery.
+
+### 🛒 Advanced Shopping Cart & Checkout
+- **Cart**: Item quantity controls, subtotal formatting, single-line clear cart option, promo code support, and dynamic order summary.
+- **Single-Page Checkout**: 
+  - Streamlined UI (Review Cart, Select Address & Payment, Place Order).
+  - Saved delivery address management (Add, Edit, Set Default, Delete) integrated directly into the checkout flow.
+  - Immediate Cash on Delivery and Online Payment options.
+
+### 📦 Comprehensive Order Management
+- **Dashboard & Search**: Minimalist, item-focused Orders page with real-time **Search Box Auto-complete** for filtering by Order ID or Product Name.
+- **Order Details**: 
+  - **Invoice Preview Modal**: A fully responsive, A4-styled on-screen invoice preview mimicking physical receipts.
+  - **PDF Generation**: Direct secure downloads for PDF Invoices streaming directly from the FastAPI backend.
+  - **Cancellation Flow**: Interactive cancel module requiring a cancellation reason (e.g., *Found a better price*, *Others*) before processing.
+  - **Reorder**: Single-click "Reorder" to immediately push previously bought items back into the cart.
+  - **Live Tracking**: Visual order tracking timeline from Pending to Delivered.
+  - **Sticky Action Panels**: Mobile-optimized action bars ensuring tracking, invoice viewing, and support options are always reachable.
 
 ---
 
@@ -25,10 +42,11 @@
 
 | Domain | Technology |
 | :--- | :--- |
-| **Frontend** | React 18, Vite, Tailwind CSS, React Router DOM 6, Axios |
+| **Frontend** | React 18, Vite, Tailwind CSS, Framer Motion, React Router DOM 6, React Icons, Axios |
 | **Backend** | FastAPI, Uvicorn, Python 3.10+, SQLAlchemy, PyMySQL, Pydantic |
 | **Database** | MySQL 8.0+ |
 | **Auth** | JWT Bearer Tokens, Passlib (Bcrypt), Python-JOSE |
+| **Documents**| PDF generation and streaming |
 
 ---
 
@@ -40,7 +58,7 @@
 - MySQL Server
 
 ### 1. Database Setup
-Create MySQL database `farm` and import schema:
+Create a MySQL database `farm` and import the schema:
 ```bash
 mysql -u root -p farm < backend/schema.sql
 ```
@@ -93,10 +111,10 @@ Task1/
 │   └── requirements.txt    # Python backend dependencies
 └── frontend/
     ├── src/
-    │   ├── components/     # UI components (ProductCard, SiteFooter, etc.)
-    │   ├── context/        # Auth & Cart React Context providers
-    │   ├── pages/          # Dashboard, CategoryProducts, CartPage, Checkout, Orders
-    │   └── api/            # Axios API client modules
+    │   ├── components/     # UI components (Orders, Cart, Layouts, etc.)
+    │   ├── context/        # Auth, Cart, and Toast Context providers
+    │   ├── pages/          # Dashboard, CategoryProducts, CartPage, Checkout, MyOrders
+    │   └── services/       # Axios API client modules
     ├── public/             # Static assets & product images
     └── package.json        # Frontend dependencies & scripts
 ```
@@ -104,4 +122,4 @@ Task1/
 ---
 
 ## 📜 License
-Developed for GrameenFresh - Authentic Village Farm Delivery.
+Developed for FarmNest - Authentic Village Farm Delivery.
