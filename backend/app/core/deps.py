@@ -34,3 +34,30 @@ def get_current_customer(
         raise credentials_exception
 
     return customer
+
+def get_current_admin(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+):
+    from app.models.admin import AdminUser
+    token = credentials.credentials
+    payload = decode_access_token(token)
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate admin credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if payload is None or payload.get("type") != "admin":
+        raise credentials_exception
+
+    admin_id = payload.get("sub")
+    if admin_id is None:
+        raise credentials_exception
+
+    admin = db.query(AdminUser).filter(AdminUser.id == admin_id).first()
+    if admin is None or not admin.is_active:
+        raise credentials_exception
+
+    return admin

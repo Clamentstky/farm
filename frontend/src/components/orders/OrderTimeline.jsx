@@ -61,7 +61,7 @@ export default function OrderTimeline({ order }) {
       <div className="relative space-y-7">
         <span className="absolute left-5 top-4 h-[calc(100%-2rem)] w-0.5 bg-soil-100" />
         <span
-          className="absolute left-5 top-4 w-0.5 bg-[#2d6f35]"
+          className="absolute left-5 top-4 w-0.5 bg-[#2d6f35] max-h-[calc(100%-2rem)]"
           style={{ height: `${(activeIndex / Math.max(steps.length - 1, 1)) * 100}%` }}
         />
         {steps.map((step, index) => {

@@ -15,11 +15,39 @@ import NotFound from './pages/NotFound'
 import ProtectedRoute from './routes/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
 
+import AdminLogin from './pages/admin/AdminLogin'
+import AdminLayout from './components/admin/AdminLayout'
+import AdminRoute from './components/admin/AdminRoute'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminCategories from './pages/admin/AdminCategories'
+import AdminProducts from './pages/admin/AdminProducts'
+import AdminOrders from './pages/admin/AdminOrders'
+import AdminCustomers from './pages/admin/AdminCustomers'
+import AdminDelivery from './pages/admin/AdminDelivery'
+import AdminReports from './pages/admin/AdminReports'
+import AdminSettings from './pages/admin/AdminSettings'
+import AdminProfile from './pages/admin/AdminProfile'
+
 export default function App() {
   return (
     <div className="app-shell">
       <ScrollToTop />
       <Routes>
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="customers" element={<AdminCustomers />} />
+            <Route path="delivery" element={<AdminDelivery />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="profile" element={<AdminProfile />} />
+          </Route>
+        </Route>
 
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />

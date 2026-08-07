@@ -11,23 +11,37 @@ const apiClient = axios.create({
 
 // Attach JWT token to every outgoing request if present
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
+  const isAdminRequest = config.url?.startsWith('/api/admin')
+  const token = isAdminRequest 
+    ? localStorage.getItem('admin_token') 
+    : localStorage.getItem('access_token')
+    
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
 
-// Handle 401s globally by logging the customer out
+// Handle 401s globally
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('customer')
-      const publicAuthPages = ['/login', '/register', '/forgot-password']
-      if (!publicAuthPages.includes(window.location.pathname)) {
-        window.location.href = '/login'
+      const isAdminRoute = error.config?.url?.startsWith('/api/admin')
+      
+      if (isAdminRoute) {
+        localStorage.removeItem('admin_token')
+        localStorage.removeItem('admin_user')
+        if (window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login'
+        }
+      } else {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('customer')
+        const publicAuthPages = ['/login', '/register', '/forgot-password']
+        if (!publicAuthPages.includes(window.location.pathname) && !window.location.pathname.startsWith('/admin')) {
+          window.location.href = '/login'
+        }
       }
     }
     return Promise.reject(error)

@@ -260,13 +260,13 @@ export default function CartPage() {
               </div>
 
               {/* Grand Total */}
-              <div className="mt-5 flex items-baseline justify-between border-t border-soil-100 pt-4">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-soil-500">Grand Total</p>
-                  <p className="text-[10px] text-soil-400">Includes all taxes & delivery fees</p>
+              <div className="mt-5 flex items-center justify-between border-t border-soil-100 pt-4 gap-2">
+                <div className="flex-1 pr-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-soil-800">Grand Total</p>
+                  <p className="text-[10px] text-soil-500 mt-0.5 leading-tight">Includes all taxes & delivery fees</p>
                 </div>
-                <span className="font-display text-2xl font-bold text-leaf-700">
-                  INR {grandTotal.toFixed(2)}
+                <span className="font-display text-xl sm:text-2xl font-black text-leaf-700 whitespace-nowrap text-right">
+                  ₹{grandTotal.toFixed(2)}
                 </span>
               </div>
 

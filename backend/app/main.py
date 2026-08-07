@@ -54,6 +54,28 @@ app.include_router(catalog.router)
 app.include_router(cart.router)
 app.include_router(address.router)
 app.include_router(order.router)
+from app.routers import (
+    admin_auth, 
+    admin_dashboard, 
+    admin_categories, 
+    admin_products, 
+    admin_orders, 
+    admin_customers, 
+    admin_delivery,
+    admin_reports,
+    admin_profile,
+    admin_settings
+)
+app.include_router(admin_auth.router)
+app.include_router(admin_dashboard.router)
+app.include_router(admin_categories.router)
+app.include_router(admin_products.router)
+app.include_router(admin_orders.router)
+app.include_router(admin_customers.router)
+app.include_router(admin_delivery.router)
+app.include_router(admin_reports.router)
+app.include_router(admin_profile.router)
+app.include_router(admin_settings.router)
 
 
 @app.get("/")

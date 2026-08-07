@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Integer
+from sqlalchemy import Column, String, DateTime, Integer, Boolean
 from sqlalchemy.sql import func
 
 from app.db.session import Base
@@ -15,3 +15,4 @@ class Customer(Base):
     village = Column(String(150), nullable=True)
     password = Column(String(255), nullable=False)  # hashed password
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_active = Column(Boolean, default=True, nullable=False)
